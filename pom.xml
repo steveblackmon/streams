@@ -5,7 +5,7 @@
 
     <groupId>org.apache.streams</groupId>
     <artifactId>streams-project</artifactId>
-    <version>0.3-PP-SNAPSHOT</version>
+    <version>0.3-PP</version>
 
     <name>Apache Streams Project</name>
     <description>Apache Streams Project</description>
