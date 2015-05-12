@@ -126,3 +126,72 @@ index 0000000..d0efc2f
 +    </server>
 +  </servers>
 +</settings>
+diff --git a/pom.xml b/pom.xml
+index 208d246..64905d9 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -3,12 +3,6 @@
+
+     <modelVersion>4.0.0</modelVersion>
+
+-    <!--<parent>-->
+-        <!--<groupId>org.apache</groupId>-->
+-        <!--<artifactId>apache</artifactId>-->
+-        <!--<version>16</version>-->
+-    <!--</parent>-->
+-
+     <groupId>org.apache.streams</groupId>
+     <artifactId>streams-project</artifactId>
+     <version>0.3-PP-SNAPSHOT</version>
+@@ -16,23 +10,14 @@
+     <name>Apache Streams Project</name>
+     <description>Apache Streams Project</description>
+
+-    <url>http://streams.incubator.apache.org/${project.version}/${project.artifactId}</url>
+-
+-    <licenses>
+-        <license>
+-            <name>Apache License, Version 2.0</name>
+-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+-            <distribution>repo</distribution>
+-            <comments>A business-friendly OSS license</comments>
+-        </license>
+-    </licenses>
++    <url>http://streams.peoplepattern.com/${project.version}/${project.artifactId}</url>
+
+     <scm>
+-        <connection>scm:git:git@github.com:apache/incubator-streams.git</connection>
+-        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-streams.git</developerConnection>
+-        <url>scm:git:git@github.com:apache/incubator-streams.git</url>
+-      <tag>HEAD</tag>
+-  </scm>
++        <connection>scm:git:git@github.com:peoplepattern/incubator-streams.git</connection>
++        <developerConnection>scm:git:git@github.com:peoplepattern/incubator-streams.git</developerConnection>
++        <url>scm:git:git@github.com:peoplepattern/incubator-streams.git</url>
++        <tag>HEAD</tag>
++    </scm>
+
+     <developers>
+         <developer>
+@@ -59,21 +44,6 @@
+         <maven>3.0.5</maven>
+     </prerequisites>
+
+-    <mailingLists>
+-        <mailingList>
+-            <name>Dev Mailing List</name>
+-            <post>dev@streams.incubator.apache.org</post>
+-            <subscribe>dev-subscribe@streams.incubator.apache.org</subscribe>
+-            <unsubscribe>dev-unsubscribe@streams.incubator.apache.org</unsubscribe>
+-        </mailingList>
+-        <mailingList>
+-            <name>User Mailing List</name>
+-            <post>user@streams.incubator.apache.org</post>
+-            <subscribe>user-subscribe@streams.incubator.apache.org</subscribe>
+-            <unsubscribe>user-unsubscribe@streams.incubator.apache.org</unsubscribe>
+-        </mailingList>
+-    </mailingLists>
+-
+     <repositories>
+         <repository>
+             <id>central-repo</id>
