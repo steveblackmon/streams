@@ -5,7 +5,7 @@
 
     <groupId>org.apache.streams</groupId>
     <artifactId>streams-project</artifactId>
-    <version>0.3.1-PP</version>
+    <version>0.3.2-PP-SNAPSHOT</version>
 
     <name>Apache Streams Project</name>
     <description>Apache Streams Project</description>
@@ -32,7 +32,7 @@
         </snapshotRepository>
         <site>
             <id>s3.site</id>
-            <url>s3://streams.peoplepattern.com/incubator-streams/0.3.1-PP-SNAPSHOT</url>
+            <url>s3://streams.peoplepattern.com/incubator-streams/${project.version}</url>
         </site>
     </distributionManagement>
 
