@@ -3,6 +3,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>16</version>
+    </parent>
+
     <groupId>org.apache.streams</groupId>
     <artifactId>streams-project</artifactId>
     <version>0.3.2-PP-SNAPSHOT</version>
@@ -298,6 +304,7 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
+                    <version>${clean.plugin.version}</version>
                     <configuration>
                         <filesets>
                             <fileset>
@@ -631,6 +638,11 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
@@ -731,12 +743,6 @@
                 <version>${storm.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <!--<dependency>-->
-            <!--<groupId>storm</groupId>-->
-            <!--<artifactId>storm-netty</artifactId>-->
-            <!--<version>${storm.version}</version>-->
-            <!--<scope>provided</scope>-->
-            <!--</dependency>-->
             <!-- JsonPath -->
             <dependency>
                 <groupId>com.jayway.jsonpath</groupId>
