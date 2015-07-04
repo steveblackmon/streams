@@ -55,6 +55,9 @@ public class MetadataFromDocumentProcessor implements StreamsProcessor, Serializ
 
     @Override
     public List<StreamsDatum> process(StreamsDatum entry) {
+
+        if( mapper == null ) mapper = StreamsJacksonMapper.getInstance();
+
         List<StreamsDatum> result = Lists.newArrayList();
 
         Map<String, Object> metadata = entry.getMetadata();
