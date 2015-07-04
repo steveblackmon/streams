@@ -44,6 +44,7 @@ import java.net.URISyntaxException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Map;
 import java.util.Queue;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -214,10 +215,10 @@ public class WebHdfsPersistReader implements StreamsPersistReader, DatumStatusCo
 
     public StreamsDatum processLine(String line) {
 
-        String[] expectedFields = hdfsConfiguration.getFields();
+        List<String> expectedFields = hdfsConfiguration.getFields();
         String[] parsedFields = line.split(hdfsConfiguration.getFieldDelimiter());
 
-        if( fields.length == 0)
+        if( parsedFields.length == 0)
             return null;
 
         String id = null;
