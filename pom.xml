@@ -114,9 +114,9 @@
             </snapshots>
         </repository>
         <repository>
-            <id>s3.release</id>
-            <name>PP S3 Release Repository</name>
-            <url>s3://releases.peoplepattern.com</url>
+            <id>s3.release.http</id>
+            <name>PP S3 Release HTTPS</name>
+            <url>http://releases.peoplepattern.com.s3-website-us-east-1.amazonaws.com</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -125,9 +125,9 @@
             </snapshots>
         </repository>
         <repository>
-            <id>s3.snapshot</id>
-            <name>PP S3 Snapshot Repository</name>
-            <url>s3://snapshots.peoplepattern.com</url>
+            <id>s3.snapshot.https</id>
+            <name>PP S3 Snapshot HTTP</name>
+            <url>http://snapshots.peoplepattern.com.s3-website-us-east-1.amazonaws.com</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
