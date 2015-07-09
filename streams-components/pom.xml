@@ -38,7 +38,7 @@
         <module>streams-converters</module>
  	    <module>streams-filters</module>
         <module>streams-http</module>
-        <module>streams-abstract</module>
+        <module>streams-abstracts</module>
     </modules>
 
     <dependencyManagement>
