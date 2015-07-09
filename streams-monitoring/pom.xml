@@ -23,7 +23,7 @@
     <parent>
         <artifactId>streams-project</artifactId>
         <groupId>org.apache.streams</groupId>
-        <version>0.3.2-PP-SNAPSHOT</version>
+        <version>0.3.3-PP-SNAPSHOT</version>
     </parent>
 
     <artifactId>streams-monitoring</artifactId>
@@ -64,9 +64,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

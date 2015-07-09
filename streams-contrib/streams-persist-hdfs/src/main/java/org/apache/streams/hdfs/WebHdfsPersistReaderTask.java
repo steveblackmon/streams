@@ -32,9 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 
 public class WebHdfsPersistReaderTask implements Runnable {
 
@@ -50,15 +52,23 @@ public class WebHdfsPersistReaderTask implements Runnable {
     public void run() {
 
         for( FileStatus fileStatus : reader.status ) {
+            InputStream inputStream;
+            InputStreamReader inputStreamReader;
             BufferedReader bufferedReader;
             LOGGER.info("Found " + fileStatus.getPath().getName());
             if( fileStatus.isFile() && !fileStatus.getPath().getName().startsWith("_")) {
-                LOGGER.info("Started Processing " + fileStatus.getPath().getName());
+                HdfsWriterConfiguration.Compression compression = HdfsWriterConfiguration.Compression.NONE;
+                if( fileStatus.getPath().getName().endsWith(".gz"))
+                    compression = HdfsWriterConfiguration.Compression.GZIP;
+                LOGGER.info("Started Processing: {} Encoding: {} Compression: {}", fileStatus.getPath().getName(), reader.hdfsConfiguration.getEncoding(), compression.toString());
                 try {
-                    bufferedReader = new BufferedReader(new InputStreamReader(reader.client.open(fileStatus.getPath())));
+                    inputStream = reader.client.open(fileStatus.getPath());
+                    if( compression.equals(HdfsWriterConfiguration.Compression.GZIP))
+                        inputStream = new GZIPInputStream(inputStream);
+                    inputStreamReader = new InputStreamReader(inputStream, reader.hdfsConfiguration.getEncoding());
+                    bufferedReader = new BufferedReader(inputStreamReader);
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    LOGGER.error(e.getMessage());
+                    LOGGER.error("Exception Opening " + fileStatus.getPath(), e.getMessage());
                     return;
                 }
 
@@ -68,9 +78,9 @@ public class WebHdfsPersistReaderTask implements Runnable {
                         line = bufferedReader.readLine();
                         if( !Strings.isNullOrEmpty(line) ) {
                             reader.countersCurrent.incrementAttempt();
-                            StreamsDatum entry = processLine(line);
+                            StreamsDatum entry = reader.processLine(line);
                             if( entry != null ) {
-                                write(entry);
+                                reader.write(entry);
                                 reader.countersCurrent.incrementStatus(DatumStatus.SUCCESS);
                             } else {
                                 LOGGER.warn("processLine failed");
@@ -96,80 +106,4 @@ public class WebHdfsPersistReaderTask implements Runnable {
         Uninterruptibles.sleepUninterruptibly(15, TimeUnit.SECONDS);
     }
 
-    private void write( StreamsDatum entry ) {
-        boolean success;
-        do {
-            synchronized( WebHdfsPersistReader.class ) {
-                success = reader.persistQueue.offer(entry);
-            }
-            Thread.yield();
-        }
-        while( !success );
-    }
-
-    private StreamsDatum processLine(String line) {
-
-        String[] fields = line.split(reader.hdfsConfiguration.getFieldDelimiter());
-
-        if( fields.length == 0)
-            return null;
-
-        String id = null;
-        DateTime ts = null;
-        Map<String, Object> metadata = null;
-        String json = null;
-
-        if( reader.hdfsConfiguration.getFields().contains( HdfsConstants.DOC )
-            && fields.length > reader.hdfsConfiguration.getFields().indexOf(HdfsConstants.DOC)) {
-            json = fields[reader.hdfsConfiguration.getFields().indexOf(HdfsConstants.DOC)];
-        }
-
-        if( reader.hdfsConfiguration.getFields().contains( HdfsConstants.ID )
-            && fields.length > reader.hdfsConfiguration.getFields().indexOf(HdfsConstants.ID)) {
-            id = fields[reader.hdfsConfiguration.getFields().indexOf(HdfsConstants.ID)];
-        }
-        if( reader.hdfsConfiguration.getFields().contains( HdfsConstants.TS )
-            && fields.length > reader.hdfsConfiguration.getFields().indexOf(HdfsConstants.TS)) {
-            ts = parseTs(fields[reader.hdfsConfiguration.getFields().indexOf(HdfsConstants.TS)]);
-        }
-        if( reader.hdfsConfiguration.getFields().contains( HdfsConstants.META )
-            && fields.length > reader.hdfsConfiguration.getFields().indexOf(HdfsConstants.META)) {
-            metadata = parseMap(fields[reader.hdfsConfiguration.getFields().indexOf(HdfsConstants.META)]);
-        }
-
-        StreamsDatum datum = new StreamsDatum(json);
-        datum.setId(id);
-        datum.setTimestamp(ts);
-        datum.setMetadata(metadata);
-
-        return datum;
-
-    }
-
-    private DateTime parseTs(String field) {
-
-        DateTime timestamp = null;
-        try {
-            long longts = Long.parseLong(field);
-            timestamp = new DateTime(longts);
-        } catch ( Exception e ) {}
-        try {
-            timestamp = reader.mapper.readValue(field, DateTime.class);
-        } catch ( Exception e ) {}
-
-        return timestamp;
-    }
-
-    private Map<String, Object> parseMap(String field) {
-
-        Map<String, Object> metadata = null;
-
-        try {
-            JsonNode jsonNode = reader.mapper.readValue(field, JsonNode.class);
-            metadata = reader.mapper.convertValue(jsonNode, Map.class);
-        } catch (IOException e) {
-            LOGGER.warn("failed in parseMap: " + e.getMessage());
-        }
-        return metadata;
-    }
 }

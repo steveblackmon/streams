@@ -3,9 +3,15 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.apache.streams</groupId>
+        <artifactId>streams-master</artifactId>
+        <version>0.3.3-PP-SNAPSHOT</version>
+    </parent>
+
     <groupId>org.apache.streams</groupId>
     <artifactId>streams-project</artifactId>
-    <version>0.3.2-PP-SNAPSHOT</version>
+    <version>0.3.3-PP-SNAPSHOT</version>
 
     <name>Apache Streams Project</name>
     <description>Apache Streams Project</description>
@@ -108,9 +114,9 @@
             </snapshots>
         </repository>
         <repository>
-            <id>s3.release</id>
-            <name>PP S3 Release Repository</name>
-            <url>s3://releases.peoplepattern.com</url>
+            <id>s3.release.http</id>
+            <name>PP S3 Release HTTPS</name>
+            <url>http://releases.peoplepattern.com.s3-website-us-east-1.amazonaws.com</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -119,9 +125,9 @@
             </snapshots>
         </repository>
         <repository>
-            <id>s3.snapshot</id>
-            <name>PP S3 Snapshot Repository</name>
-            <url>s3://snapshots.peoplepattern.com</url>
+            <id>s3.snapshot.https</id>
+            <name>PP S3 Snapshot HTTP</name>
+            <url>http://snapshots.peoplepattern.com.s3-website-us-east-1.amazonaws.com</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -298,6 +304,7 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
+                    <version>${clean.plugin.version}</version>
                     <configuration>
                         <filesets>
                             <fileset>
@@ -631,6 +638,11 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
@@ -731,12 +743,6 @@
                 <version>${storm.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <!--<dependency>-->
-            <!--<groupId>storm</groupId>-->
-            <!--<artifactId>storm-netty</artifactId>-->
-            <!--<version>${storm.version}</version>-->
-            <!--<scope>provided</scope>-->
-            <!--</dependency>-->
             <!-- JsonPath -->
             <dependency>
                 <groupId>com.jayway.jsonpath</groupId>

@@ -151,7 +151,7 @@ public class LocalStreamBuilder implements StreamBuilder {
             }
         };
         this.useDeprecatedMonitors = false;
-        this.broadcastMonitor = new BroadcastMonitorThread(this.streamConfig);
+        this.broadcastMonitor = new BroadcastMonitorThread(this.streamConfig.getMonitoring());
     }
 
     public void setUseDeprecatedMonitors(boolean useDeprecatedMonitors) {
@@ -264,7 +264,7 @@ public class LocalStreamBuilder implements StreamBuilder {
             }
             LOGGER.info("Components are no longer running or timed out");
         } catch (Exception e){
-            LOGGER.warn("Runtime exception.  Beginning shutdown");
+            LOGGER.warn("Runtime exception.  Beginning shutdown", e);
             forcedShutDown = true;
         } finally{
             LOGGER.info("Stream has completed, pausing @ {}", System.currentTimeMillis());

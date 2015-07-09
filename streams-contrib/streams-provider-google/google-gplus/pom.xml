@@ -21,13 +21,18 @@
     <parent>
         <groupId>org.apache.streams</groupId>
         <artifactId>streams-provider-google</artifactId>
-        <version>0.3.2-PP-SNAPSHOT</version>
+        <version>0.3.3-PP-SNAPSHOT</version>
     </parent>
 
     <artifactId>google-gplus</artifactId>
     <name>${project.artifactId}</name>
 
     <description>Google+ Provider</description>
+
+    <properties>
+        <skipITs>true</skipITs>
+        <testDataBaseURl>http://streams.peoplepattern.com.s3.amazonaws.com/test-data/</testDataBaseURl>
+    </properties>
 
     <repositories>
         <repository>
@@ -100,6 +105,16 @@
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-jackson2</artifactId>
             <version>1.17.0-rc</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -189,6 +204,37 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.googlecode.maven-download-plugin</groupId>
+                <artifactId>download-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <id>download-it-data</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <url>${testDataBaseURl}/${artifactId}.zip</url>
+                            <unpack>true</unpack>
+                            <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                            <!--<md5>df65b5642f33676313ebe4d5b69a3fff</md5>-->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <skipTests>${skipITs}</skipTests>
+                </configuration>
+            </plugin>
+<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+</plugin>
         </plugins>
     </build>
 </project>

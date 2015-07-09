@@ -18,6 +18,8 @@
 
 package org.apache.streams.util;
 
+import org.apache.commons.io.input.ClassLoaderObjectInputStream;
+
 import java.io.*;
 
 /**
@@ -50,7 +52,8 @@ public class SerializationUtil {
     public static Object deserialize(byte[] serialized) {
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(serialized);
-            ObjectInputStream ois = new ObjectInputStream(bis);
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            ObjectInputStream ois = new ClassLoaderObjectInputStream(classLoader, bis);
             Object ret = ois.readObject();
             ois.close();
             return ret;
@@ -63,6 +66,8 @@ public class SerializationUtil {
 
 
     public static <T> T cloneBySerialization(T obj) {
-        return (T) deserialize(serialize(obj));
+        if( obj != null )
+            return (T) deserialize(serialize(obj));
+        else return null;
     }
 }

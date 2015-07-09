@@ -20,7 +20,7 @@
     <parent>
         <artifactId>streams-amazon-aws</artifactId>
         <groupId>org.apache.streams</groupId>
-        <version>0.3.2-PP-SNAPSHOT</version>
+        <version>0.3.3-PP-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -48,6 +48,16 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.streams</groupId>

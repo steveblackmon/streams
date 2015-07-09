@@ -29,6 +29,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.web.WebHdfsFileSystem;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.streams.config.ComponentConfigurator;
+import org.apache.streams.config.StreamsConfigurator;
 import org.apache.streams.core.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -46,6 +48,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
+import java.util.zip.GZIPOutputStream;
 
 public class WebHdfsPersistWriter implements StreamsPersistWriter, Flushable, Closeable, DatumStatusCountable {
     public final static String STREAMS_ID = "WebHdfsPersistWriter";
@@ -76,6 +79,10 @@ public class WebHdfsPersistWriter implements StreamsPersistWriter, Flushable, Cl
     private ObjectMapper mapper = new ObjectMapper();
 
     protected HdfsWriterConfiguration hdfsConfiguration;
+
+    public WebHdfsPersistWriter() {
+        this(new ComponentConfigurator<>(HdfsWriterConfiguration.class).detectConfiguration(StreamsConfigurator.getConfig().getConfig("hdfs")));
+    }
 
     public WebHdfsPersistWriter(HdfsWriterConfiguration hdfsConfiguration) {
         this.hdfsConfiguration = hdfsConfiguration;
@@ -208,7 +215,12 @@ public class WebHdfsPersistWriter implements StreamsPersistWriter, Flushable, Cl
             return;
 
         // Create the path for where the file is going to live.
-        Path filePath = this.path.suffix("/" + hdfsConfiguration.getWriterFilePrefix() + "-" + new Date().getTime() + ".tsv");
+        Path filePath = this.path.suffix("/" + hdfsConfiguration.getWriterFilePrefix() + "-" + new Date().getTime());
+
+        if( hdfsConfiguration.getCompression().equals(HdfsWriterConfiguration.Compression.GZIP))
+            filePath = filePath.suffix(".gz");
+        else
+            filePath = filePath.suffix(".tsv");
 
         try {
 
@@ -224,7 +236,10 @@ public class WebHdfsPersistWriter implements StreamsPersistWriter, Flushable, Cl
             if (client.exists(filePath))
                 throw new RuntimeException("Unable to create file: " + filePath);
 
-            this.currentWriter = new OutputStreamWriter(client.create(filePath));
+            if( hdfsConfiguration.getCompression().equals(HdfsWriterConfiguration.Compression.GZIP))
+                this.currentWriter = new OutputStreamWriter(new GZIPOutputStream(client.create(filePath)));
+            else
+                this.currentWriter = new OutputStreamWriter(client.create(filePath));
 
             // Add another file to the list of written files.
             writtenFiles.add(filePath);
@@ -246,7 +261,7 @@ public class WebHdfsPersistWriter implements StreamsPersistWriter, Flushable, Cl
         }
     }
 
-    private String convertResultToString(StreamsDatum entry) {
+    public String convertResultToString(StreamsDatum entry) {
         String metadataJson = null;
         try {
             metadataJson = mapper.writeValueAsString(entry.getMetadata());
