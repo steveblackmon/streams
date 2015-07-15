@@ -2,6 +2,7 @@ package org.apache.streams.spark
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.streams.core.{StreamsPersistWriter, StreamsDatum, StreamsProcessor}
+import org.apache.streams.hdfs.WebHdfsPersistWriter
 import org.apache.streams.jackson.StreamsJacksonMapper
 import org.apache.streams.pojo.json.{ActivityObject, Activity}
 import org.apache.streams.util.SerializationUtil
@@ -44,6 +45,15 @@ object StreamsSparkBuilder {
       case _ =>
         return None
     }
+  }
+
+  def mapApplyProcessor(iter: Iterator[StreamsDatum], processor: StreamsProcessor) : Iterator[StreamsDatum] = {
+    val clone = deepCopy(processor)
+    clone.prepare(null)
+    val listIterator : Iterator[Iterator[StreamsDatum]] = iter.flatMap(item => applyProcessor(item, clone))
+    val out = listIterator.flatten
+    clone.cleanUp()
+    return out
   }
 
   def datumDocAsString(in: StreamsDatum, mapper: ObjectMapper) : Option[String] = {
@@ -92,15 +102,6 @@ object StreamsSparkBuilder {
     iter.flatMap(item => toJson(item, mapper))
   }
 
-  def mapApplyProcessor(iter: Iterator[StreamsDatum], processor: StreamsProcessor) : Iterator[StreamsDatum] = {
-    val clone = deepCopy(processor)
-    clone.prepare(null)
-    val listIterator : Iterator[Iterator[StreamsDatum]] = iter.flatMap(item => applyProcessor(item, clone))
-    val out = listIterator.flatten
-    clone.cleanUp()
-    return out
-  }
-
   def mapApplyConfiguredProcessor(iter: Iterator[StreamsDatum], processor: StreamsProcessor, configuration: Object) : Iterator[StreamsDatum] = {
     val clone = deepCopy(processor)
     clone.prepare(configuration)
@@ -129,6 +130,25 @@ object StreamsSparkBuilder {
     return out
   }
 
+  def asLine(in: StreamsDatum, webHdfsPersistWriter: WebHdfsPersistWriter) : Option[String] = {
+    val out = Try(webHdfsPersistWriter.convertResultToString(in).trim)
+    out match {
+      case Success(v : String) =>
+        if( out != null ) return Some(v) else return None
+      case Failure(e : Throwable) =>
+        LOGGER.warn(in.getId, e)
+        return None
+      case _ =>
+        return None
+    }
+  }
+
+  def asLine(iter: Iterator[StreamsDatum], webHdfsPersistWriter: WebHdfsPersistWriter) : Iterator[String] = {
+    webHdfsPersistWriter.prepare(null)
+    val out = iter.flatMap(item => asLine(item, webHdfsPersistWriter))
+    webHdfsPersistWriter.cleanUp()
+    return out
+  }
 
   def applyPersistWriter(in: StreamsDatum, writer: StreamsPersistWriter): Unit = {
     writer.write(in)
