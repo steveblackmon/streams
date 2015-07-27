@@ -227,6 +227,10 @@
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>com.github.ferstl</groupId>
+                <artifactId>depgraph-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </reporting>
 
