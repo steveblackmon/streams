@@ -317,6 +317,7 @@ public class LocalStreamBuilder implements StreamBuilder {
                 this.monitor.shutdownNow();
             }
         }catch (InterruptedException ie) {
+            LOGGER.debug("Interrupted during forced shutdown.", ie);
             this.executor.shutdownNow();
             this.monitor.shutdownNow();
             throw new RuntimeException(ie);
@@ -409,8 +410,8 @@ public class LocalStreamBuilder implements StreamBuilder {
                 }
                 for(StreamsTask task : tasks) {
                     int count = 0;
-                    while(count < 20 && task.isRunning()) {
-                        Thread.sleep(500);
+                    while(count < 30 && task.isRunning()) {
+                        Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
                         count++;
                     }
                     if(task.isRunning()) {
@@ -442,7 +443,11 @@ public class LocalStreamBuilder implements StreamBuilder {
             shutdown(tasks);
         } catch (Exception e) {
             LOGGER.error("Exception while trying to shutdown Stream: {}", e);
-            forceShutdown(tasks);
+            try {
+                forceShutdown(tasks);
+            } catch (Exception e2) {
+                LOGGER.error("Exception while trying to force shutdown Stream: {}", e2);
+            }
         } finally {
             if(!systemExiting) {
                 detachShutdownHandler();
