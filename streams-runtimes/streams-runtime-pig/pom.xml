@@ -22,7 +22,7 @@
     <parent>
         <artifactId>streams-runtimes</artifactId>
         <groupId>org.apache.streams</groupId>
-        <version>0.3.3-PP-SNAPSHOT</version>
+        <version>0.3.3-PP</version>
     </parent>
     <artifactId>streams-runtime-pig</artifactId>
     <name>${project.artifactId}</name>
