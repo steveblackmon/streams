@@ -1,9 +1,12 @@
 package org.apache.streams.spark
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.typesafe.config.Config
 import org.apache.streams.core.{StreamsPersistWriter, StreamsDatum, StreamsProcessor}
 import org.apache.streams.hdfs.WebHdfsPersistWriter
 import org.apache.streams.jackson.StreamsJacksonMapper
+import org.apache.streams.local.builders.LocalStreamBuilder
 import org.apache.streams.pojo.json.{ActivityObject, Activity}
 import org.apache.streams.util.SerializationUtil
 import org.slf4j.{Logger, LoggerFactory}
@@ -14,6 +17,76 @@ import scala.util.{Failure, Success, Try}
 object StreamsSparkBuilder {
 
   private val LOGGER: Logger = LoggerFactory.getLogger("StreamsSparkHelper")
+
+  def asActivity(in: Object) : Option[Activity] = {
+    val mapper = StreamsJacksonMapper.getInstance()
+    if( in.isInstanceOf[Activity] )
+      return Some(in.asInstanceOf[Activity])
+    else if( in.isInstanceOf[String] ) {
+      val out = Try(mapper.readValue(in.asInstanceOf[String], classOf[Activity]))
+      out match {
+        case Success(v : Activity) =>
+          return Some(v)
+        case Failure(e : Throwable) =>
+          LOGGER.warn(in.toString)
+          return None
+        case _ =>
+          return None
+      }
+    }
+    else {
+      val out = Try(mapper.convertValue(in, classOf[Activity]))
+      out match {
+        case Success(v : Activity) =>
+          return Some(v)
+        case Failure(e : Throwable) =>
+          LOGGER.warn(in.toString)
+          return None
+        case _ =>
+          return None
+      }
+    }
+  }
+
+  def mapAsActivity(iter: Iterator[Object]) : Iterator[Activity] = {
+    val mapper = StreamsJacksonMapper.getInstance()
+    iter.flatMap(item => asActivity(item))
+  }
+
+  def asActivityObject(in: Object) : Option[ActivityObject] = {
+    val mapper = StreamsJacksonMapper.getInstance()
+    if( in.isInstanceOf[ActivityObject] )
+      return Some(in.asInstanceOf[ActivityObject])
+    else if( in.isInstanceOf[String] ) {
+      val out = Try(mapper.readValue(in.asInstanceOf[String], classOf[ActivityObject]))
+      out match {
+        case Success(v : ActivityObject) =>
+          return Some(v)
+        case Failure(e : Throwable) =>
+          LOGGER.warn(in.toString)
+          return None
+        case _ =>
+          return None
+      }
+    }
+    else {
+      val out = Try(mapper.convertValue(in, classOf[ActivityObject]))
+      out match {
+        case Success(v : ActivityObject) =>
+          return Some(v)
+        case Failure(e : Throwable) =>
+          LOGGER.warn(in.toString)
+          return None
+        case _ =>
+          return None
+      }
+    }
+  }
+
+  def mapAsActivityObject(iter: Iterator[Object]) : Iterator[ActivityObject] = {
+    val mapper = StreamsJacksonMapper.getInstance()
+    iter.flatMap(item => asActivityObject(item))
+  }
 
   def asDatum(in: Object) : Option[StreamsDatum] = {
     val out = Try(new StreamsDatum(in))
@@ -162,5 +235,6 @@ object StreamsSparkBuilder {
 
   def deepCopy[A](a: A)(implicit m: reflect.Manifest[A]): A =
     SerializationUtil.cloneBySerialization(a)
+
 }
 

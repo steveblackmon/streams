@@ -79,6 +79,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.streams</groupId>
+            <artifactId>streams-runtime-local</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.suffix}</artifactId>
             <version>${spark.version}</version>
