@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.typesafe.config.Config
 import org.apache.streams.core.{StreamsPersistWriter, StreamsDatum, StreamsProcessor}
-import org.apache.streams.hdfs.WebHdfsPersistWriter
+import org.apache.streams.hdfs.{WebHdfsPersistReader, WebHdfsPersistWriter}
 import org.apache.streams.jackson.StreamsJacksonMapper
 import org.apache.streams.local.builders.LocalStreamBuilder
 import org.apache.streams.pojo.json.{ActivityObject, Activity}
@@ -220,6 +220,26 @@ object StreamsSparkBuilder {
     webHdfsPersistWriter.prepare(null)
     val out = iter.flatMap(item => asLine(item, webHdfsPersistWriter))
     webHdfsPersistWriter.cleanUp()
+    return out
+  }
+
+  def fromLine(in: String, webHdfsPersistReader: WebHdfsPersistReader) : Option[StreamsDatum] = {
+    val out = Try(webHdfsPersistReader.processLine(in))
+    out match {
+      case Success(v : StreamsDatum) =>
+        if( out != null ) return Some(v) else return None
+      case Failure(e : Throwable) =>
+        LOGGER.warn(in, e)
+        return None
+      case _ =>
+        return None
+    }
+  }
+
+  def fromLine(iter: Iterator[String], webHdfsPersistReader: WebHdfsPersistReader) : Iterator[StreamsDatum] = {
+    webHdfsPersistReader.prepare(null)
+    val out = iter.flatMap(item => fromLine(item, webHdfsPersistReader))
+    webHdfsPersistReader.cleanUp()
     return out
   }
 
