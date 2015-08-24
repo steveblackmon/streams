@@ -2,6 +2,7 @@ package org.apache.streams.spark
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.config.Config
 import org.apache.streams.core.{StreamsPersistWriter, StreamsDatum, StreamsProcessor}
 import org.apache.streams.hdfs.{WebHdfsPersistReader, WebHdfsPersistWriter}
@@ -201,6 +202,26 @@ object StreamsSparkBuilder {
     val mapper = StreamsJacksonMapper.getInstance()
     val out = iter.flatMap(item => writeDocumentAsString(item, mapper))
     return out
+  }
+
+  def writeDocumentAsMap(in: StreamsDatum) : Option[Map[String,AnyRef]] = {
+    val mapper = StreamsJacksonMapper.getInstance()
+    mapper.registerModule(DefaultScalaModule)
+    val doc = in.getDocument
+    var out : Try[Map[String,AnyRef]] = null
+    if( doc.isInstanceOf[String])
+      out = Try(mapper.readValue(doc.asInstanceOf[String], classOf[Map[String,AnyRef]]))
+    else
+      out = Try(mapper.convertValue(doc, classOf[Map[String,AnyRef]]))
+    out match {
+      case Success(v : Map[String,AnyRef]) =>
+        return Some(out.get)
+      case Failure(e : Throwable) =>
+        LOGGER.warn(in.getId, e)
+        return None
+      case _ =>
+        return None
+    }
   }
 
   def asLine(in: StreamsDatum, webHdfsPersistWriter: WebHdfsPersistWriter) : Option[String] = {
