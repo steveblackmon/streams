@@ -16,14 +16,15 @@
  * under the License.
  */
 
-package org.apache.streams.hdfs;
+package org.apache.streams.converter;
 
 /**
- * Predefined field symbols for streams-persist-hdfs
+ * Predefined field symbols
  */
-public class HdfsConstants {
+public class FieldConstants {
 
     protected static final String ID = "ID";
+    protected static final String SEQ = "SEQ";
     protected static final String TS = "TS";
     protected static final String META = "META";
     protected static final String DOC = "DOC";

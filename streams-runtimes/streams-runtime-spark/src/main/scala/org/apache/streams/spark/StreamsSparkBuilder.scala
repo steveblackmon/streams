@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.config.Config
+import org.apache.streams.converter.{LineReaderUtil, LineWriterUtil}
 import org.apache.streams.core.{StreamsPersistWriter, StreamsDatum, StreamsProcessor}
-import org.apache.streams.hdfs.{WebHdfsPersistReader, WebHdfsPersistWriter}
 import org.apache.streams.jackson.StreamsJacksonMapper
 import org.apache.streams.local.builders.LocalStreamBuilder
 import org.apache.streams.pojo.json.{ActivityObject, Activity}
@@ -224,8 +224,8 @@ object StreamsSparkBuilder {
     }
   }
 
-  def asLine(in: StreamsDatum, webHdfsPersistWriter: WebHdfsPersistWriter) : Option[String] = {
-    val out = Try(webHdfsPersistWriter.convertResultToString(in).trim)
+  def asLine(in: StreamsDatum, lineWriterUtil: LineWriterUtil) : Option[String] = {
+    val out = Try(lineWriterUtil.convertResultToString(in).trim)
     out match {
       case Success(v : String) =>
         if( out != null ) return Some(v) else return None
@@ -237,15 +237,13 @@ object StreamsSparkBuilder {
     }
   }
 
-  def asLine(iter: Iterator[StreamsDatum], webHdfsPersistWriter: WebHdfsPersistWriter) : Iterator[String] = {
-    webHdfsPersistWriter.prepare(null)
-    val out = iter.flatMap(item => asLine(item, webHdfsPersistWriter))
-    webHdfsPersistWriter.cleanUp()
+  def asLine(iter: Iterator[StreamsDatum], lineWriterUtil: LineWriterUtil) : Iterator[String] = {
+    val out = iter.flatMap(item => asLine(item, lineWriterUtil))
     return out
   }
 
-  def fromLine(in: String, webHdfsPersistReader: WebHdfsPersistReader) : Option[StreamsDatum] = {
-    val out = Try(webHdfsPersistReader.processLine(in))
+  def fromLine(in: String, lineReaderUtil: LineReaderUtil) : Option[StreamsDatum] = {
+    val out = Try(lineReaderUtil.processLine(in))
     out match {
       case Success(v : StreamsDatum) =>
         if( out != null ) return Some(v) else return None
@@ -257,10 +255,8 @@ object StreamsSparkBuilder {
     }
   }
 
-  def fromLine(iter: Iterator[String], webHdfsPersistReader: WebHdfsPersistReader) : Iterator[StreamsDatum] = {
-    webHdfsPersistReader.prepare(null)
-    val out = iter.flatMap(item => fromLine(item, webHdfsPersistReader))
-    webHdfsPersistReader.cleanUp()
+  def fromLine(iter: Iterator[String], lineReaderUtil: LineReaderUtil) : Iterator[StreamsDatum] = {
+    val out = iter.flatMap(item => fromLine(item, lineReaderUtil))
     return out
   }
 
