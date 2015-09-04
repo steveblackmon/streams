@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.config.Config
-import org.apache.streams.converter.{LineReaderUtil, LineWriterUtil}
+import org.apache.streams.converter.LineReadWriteUtil
 import org.apache.streams.core.{StreamsPersistWriter, StreamsDatum, StreamsProcessor}
 import org.apache.streams.jackson.StreamsJacksonMapper
 import org.apache.streams.local.builders.LocalStreamBuilder
@@ -224,7 +224,7 @@ object StreamsSparkBuilder {
     }
   }
 
-  def asLine(in: StreamsDatum, lineWriterUtil: LineWriterUtil) : Option[String] = {
+  def asLine(in: StreamsDatum, lineWriterUtil: LineReadWriteUtil) : Option[String] = {
     val out = Try(lineWriterUtil.convertResultToString(in).trim)
     out match {
       case Success(v : String) =>
@@ -237,12 +237,12 @@ object StreamsSparkBuilder {
     }
   }
 
-  def asLine(iter: Iterator[StreamsDatum], lineWriterUtil: LineWriterUtil) : Iterator[String] = {
+  def asLine(iter: Iterator[StreamsDatum], lineWriterUtil: LineReadWriteUtil) : Iterator[String] = {
     val out = iter.flatMap(item => asLine(item, lineWriterUtil))
     return out
   }
 
-  def fromLine(in: String, lineReaderUtil: LineReaderUtil) : Option[StreamsDatum] = {
+  def fromLine(in: String, lineReaderUtil: LineReadWriteUtil) : Option[StreamsDatum] = {
     val out = Try(lineReaderUtil.processLine(in))
     out match {
       case Success(v : StreamsDatum) =>
@@ -255,7 +255,7 @@ object StreamsSparkBuilder {
     }
   }
 
-  def fromLine(iter: Iterator[String], lineReaderUtil: LineReaderUtil) : Iterator[StreamsDatum] = {
+  def fromLine(iter: Iterator[String], lineReaderUtil: LineReadWriteUtil) : Iterator[StreamsDatum] = {
     val out = iter.flatMap(item => fromLine(item, lineReaderUtil))
     return out
   }
