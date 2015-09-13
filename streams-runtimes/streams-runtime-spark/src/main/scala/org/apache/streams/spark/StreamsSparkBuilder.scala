@@ -224,7 +224,8 @@ object StreamsSparkBuilder {
     }
   }
 
-  def asLine(in: StreamsDatum, lineWriterUtil: LineReadWriteUtil) : Option[String] = {
+  def asLine(in: StreamsDatum) : Option[String] = {
+    val lineWriterUtil = LineReadWriteUtil.getInstance()
     val out = Try(lineWriterUtil.convertResultToString(in).trim)
     out match {
       case Success(v : String) =>
@@ -237,8 +238,8 @@ object StreamsSparkBuilder {
     }
   }
 
-  def asLine(iter: Iterator[StreamsDatum], lineWriterUtil: LineReadWriteUtil) : Iterator[String] = {
-    val out = iter.flatMap(item => asLine(item, lineWriterUtil))
+  def asLine(iter: Iterator[StreamsDatum]) : Iterator[String] = {
+    val out = iter.flatMap(item => asLine(item))
     return out
   }
 
