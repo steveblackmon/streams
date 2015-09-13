@@ -24,6 +24,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Created by smartin on 6/25/15.
  */
 public abstract class AbstractPersistWriter<T> implements StreamsPersistWriter, Runnable {
+
+    public static final String STREAMS_ID = AbstractPersistWriter.class.getCanonicalName();
     protected final static Logger LOGGER = LoggerFactory.getLogger(AbstractPersistWriter.class);
     private final static long MAX_WRITE_LATENCY = 1000;
     public static final int BATCH_SIZE = 100;
