@@ -114,7 +114,7 @@
             </snapshots>
         </repository>
         <repository>
-            <id>s3.release.http</id>
+            <id>s3.release.https</id>
             <name>PP S3 Release HTTPS</name>
             <url>http://releases.peoplepattern.com.s3-website-us-east-1.amazonaws.com</url>
             <releases>
