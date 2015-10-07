@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.streams</groupId>
         <artifactId>streams-provider-google</artifactId>
-        <version>0.3.4-PP</version>
+        <version>0.3.5-PP-SNAPSHOT</version>
     </parent>
 
     <artifactId>google-gmail</artifactId>
