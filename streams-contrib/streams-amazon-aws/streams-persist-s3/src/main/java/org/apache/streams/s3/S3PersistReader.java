@@ -108,7 +108,7 @@ public class S3PersistReader implements StreamsPersistReader, DatumStatusCountab
 
     public void prepare(Object configurationObject) {
 
-        lineReaderUtil = LineReadWriteUtil.getInstance(s3ReaderConfiguration.getFields(), s3ReaderConfiguration.getFieldDelimiter(), s3ReaderConfiguration.getLineDelimiter());
+        lineReaderUtil = LineReadWriteUtil.getInstance(s3ReaderConfiguration);
         // Connect to S3
         synchronized (this)
         {
