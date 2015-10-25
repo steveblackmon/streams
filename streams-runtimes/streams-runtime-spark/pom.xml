@@ -31,7 +31,7 @@
     <properties>
         <scala.version>2.10.5</scala.version>
         <scala.suffix>2.10</scala.suffix>
-        <spark.version>1.4.0</spark.version>
+        <spark.version>1.5.0</spark.version>
         <hadoop.version>2.7.0</hadoop.version>
     </properties>
 

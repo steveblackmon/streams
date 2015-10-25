@@ -1,15 +1,34 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.apache.streams.spark
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.config.Config
-import org.apache.streams.converter.LineReadWriteUtil
+import org.apache.streams.converter.{LineReadWriteConfiguration, LineReadWriteUtil}
 import org.apache.streams.core.{StreamsPersistWriter, StreamsDatum, StreamsProcessor}
 import org.apache.streams.jackson.StreamsJacksonMapper
 import org.apache.streams.local.builders.LocalStreamBuilder
-import org.apache.streams.pojo.json.{ActivityObject, Activity}
+import org.apache.streams.pojo.json.{Actor, ActivityObject, Activity}
 import org.apache.streams.util.SerializationUtil
+import org.joda.time.DateTime
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConversions._
@@ -102,8 +121,17 @@ object StreamsSparkBuilder {
     }
   }
 
-  def asDatum(iter: Iterator[Object]) : Iterator[StreamsDatum] = {
+  def mapAsDatum(iter: Iterator[Object]) : Iterator[StreamsDatum] = {
     iter.flatMap(item => asDatum(item))
+  }
+
+  def setId(datum: StreamsDatum, in: Actor) : StreamsDatum = {
+    return datum.setId(in.getId).asInstanceOf[StreamsDatum]
+  }
+
+  def setTimestamp(datum: StreamsDatum, in: Actor) : StreamsDatum = {
+    val ts : DateTime  = in.getPublished
+    return datum.setTimestamp(ts).asInstanceOf[StreamsDatum]
   }
 
   def applyProcessor(in: StreamsDatum, processor: StreamsProcessor) : Option[Iterator[StreamsDatum]] = {
@@ -148,9 +176,26 @@ object StreamsSparkBuilder {
     }
   }
 
-  def datumDocAsString(iter: Iterator[StreamsDatum]) : Iterator[String] = {
+  def mapDatumDocAsString(iter: Iterator[StreamsDatum]) : Iterator[String] = {
     val mapper = StreamsJacksonMapper.getInstance()
     iter.flatMap(item => datumDocAsString(item, mapper))
+  }
+
+  def activityObjectAsDatum(in: ActivityObject) : Option[StreamsDatum] = {
+    val out = Try(new StreamsDatum(in, in.getId, in.getPublished))
+    out match {
+      case Success(v : StreamsDatum) =>
+        if( out != null ) return Some(v) else return None
+      case Failure(e : Throwable) =>
+        LOGGER.warn(in.toString)
+        return None
+      case _ =>
+        return None
+    }
+  }
+
+  def mapActivityObjectAsDatum(iter: Iterator[ActivityObject]) : Iterator[StreamsDatum] = {
+    iter.flatMap(item => activityObjectAsDatum(item))
   }
 
   def toJson(in: Object, mapper: ObjectMapper) : Option[String] = {
@@ -198,7 +243,7 @@ object StreamsSparkBuilder {
     }
   }
 
-  def writeDocumentAsString(iter: Iterator[StreamsDatum]) : Iterator[String] = {
+  def mapWriteDocumentAsString(iter: Iterator[StreamsDatum]) : Iterator[String] = {
     val mapper = StreamsJacksonMapper.getInstance()
     val out = iter.flatMap(item => writeDocumentAsString(item, mapper))
     return out
@@ -224,9 +269,9 @@ object StreamsSparkBuilder {
     }
   }
 
-  def asLine(in: StreamsDatum) : Option[String] = {
-    val lineWriterUtil = LineReadWriteUtil.getInstance()
-    val out = Try(lineWriterUtil.convertResultToString(in).trim)
+  def asLine(in: StreamsDatum, lineReadWriteConfiguration: LineReadWriteConfiguration = new LineReadWriteConfiguration()) : Option[String] = {
+    val lineReadWriteUtil = LineReadWriteUtil.getInstance(lineReadWriteConfiguration)
+    val out = Try(lineReadWriteUtil.convertResultToString(in))
     out match {
       case Success(v : String) =>
         if( out != null ) return Some(v) else return None
@@ -238,13 +283,14 @@ object StreamsSparkBuilder {
     }
   }
 
-  def asLine(iter: Iterator[StreamsDatum]) : Iterator[String] = {
-    val out = iter.flatMap(item => asLine(item))
+  def mapAsLine(iter: Iterator[StreamsDatum], lineReadWriteConfiguration: LineReadWriteConfiguration = new LineReadWriteConfiguration()) : Iterator[String] = {
+    val out = iter.flatMap(item => asLine(item, lineReadWriteConfiguration))
     return out
   }
 
-  def fromLine(in: String, lineReaderUtil: LineReadWriteUtil) : Option[StreamsDatum] = {
-    val out = Try(lineReaderUtil.processLine(in))
+  def fromLine(in: String, lineReadWriteConfiguration: LineReadWriteConfiguration = new LineReadWriteConfiguration()) : Option[StreamsDatum] = {
+    val lineReadWriteUtil = LineReadWriteUtil.getInstance(lineReadWriteConfiguration)
+    val out = Try(lineReadWriteUtil.processLine(in))
     out match {
       case Success(v : StreamsDatum) =>
         if( out != null ) return Some(v) else return None
@@ -256,8 +302,8 @@ object StreamsSparkBuilder {
     }
   }
 
-  def fromLine(iter: Iterator[String], lineReaderUtil: LineReadWriteUtil) : Iterator[StreamsDatum] = {
-    val out = iter.flatMap(item => fromLine(item, lineReaderUtil))
+  def mapFromLine(iter: Iterator[String], lineReadWriteConfiguration: LineReadWriteConfiguration = new LineReadWriteConfiguration()) : Iterator[StreamsDatum] = {
+    val out = iter.flatMap(item => fromLine(item, lineReadWriteConfiguration))
     return out
   }
 
