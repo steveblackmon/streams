@@ -18,13 +18,11 @@
 
 package org.apache.streams.urls;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.streams.core.StreamsDatum;
 import org.apache.streams.jackson.StreamsJacksonMapper;
-import org.apache.streams.jackson.StreamsJacksonModule;
 import org.apache.streams.pojo.json.Activity;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -55,6 +53,7 @@ public class TestLinkUnwinderProcessor {
         LinkResolver clone = SerializationUtils.clone(resolver);
     }
 
+    @Ignore
     @Test
     public void test404Link() {
         LinkResolver resolver = new LinkResolver("http://www.kneesupmotherbrown.me/2013/05/26/well-its-fair-to-say-may-has-been-a-crappy-month");
