@@ -143,6 +143,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.7</java.version>
+        <scala.version>2.10</scala.version>
 
         <!-- Release Properties -->
         <snapshot.repository.url>
@@ -694,6 +695,11 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-joda</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-scala_${scala.version}</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
