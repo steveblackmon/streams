@@ -396,6 +396,29 @@
                     <configuration>
                         <skipIfEmpty>true</skipIfEmpty>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>jar</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                            <configuration>
+                                <classifier>jar</classifier>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>test-jar</id>
+                            <goals>
+                                <goal>test-jar</goal>
+                            </goals>
+                            <configuration>
+                                <includes>
+                                    <include>**/*.json</include>
+                                    <include>**/*.class</include>
+                                </includes>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
