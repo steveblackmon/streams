@@ -89,7 +89,7 @@ public class ActivityObjectConverterUtil {
         configure();
     }
 
-    public ActivityObject convert(Object document) {
+    public synchronized ActivityObject convert(Object document) {
 
         ActivityObject result = null;
 
@@ -121,7 +121,14 @@ public class ActivityObjectConverterUtil {
 
             ActivityObject activityObject = applyConverter(converter, typedDoc);
 
-            if( activityObject != null) result = activityObject;
+            // prefer the most specific ActivityObject sub-class returned by all converters
+            if( activityObject != null ) {
+                if (result == null)
+                    result = activityObject;
+                else if (isAncestor(activityObject.getClass(), result.getClass()))
+                    result = activityObject;
+            }
+
         }
 
         return result;
@@ -220,5 +227,13 @@ public class ActivityObjectConverterUtil {
             }
         }
         Preconditions.checkArgument(this.converters.size() > 0);
+    }
+
+    private boolean isAncestor(Class possibleDescendant, Class possibleAncestor) {
+        if( possibleDescendant.equals(Object.class))
+            return false;
+        if( possibleDescendant.getSuperclass().equals(possibleAncestor))
+            return true;
+        else return isAncestor(possibleDescendant.getSuperclass(), possibleAncestor);
     }
 }
