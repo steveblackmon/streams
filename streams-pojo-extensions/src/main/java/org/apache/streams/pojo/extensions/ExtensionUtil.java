@@ -128,12 +128,20 @@ public class ExtensionUtil {
             additionalProperties = Maps.newHashMap();
         }
         if( !Strings.isNullOrEmpty(extensionProperty) ) {
-            extensions = (Map<String, Object>) additionalProperties.get(extensionProperty);
-            if(extensions == null) {
-                extensions = Maps.newHashMap();
-                additionalProperties.put(extensionProperty, extensions);
+          Object extensionProperties = additionalProperties.get(extensionProperty);
+
+          if( extensionProperties != null ) {
+            if( extensionProperties instanceof scala.collection.Map<?, ?> ) {
+              extensionProperties = scala.collection.JavaConverters.mapAsJavaMapConverter((scala.collection.Map<String, Object>) extensionProperties).asJava();
             }
-            return extensions;
+            extensions = (Map<String, Object>) extensionProperties;
+          }
+          else {
+            extensions = Maps.newHashMap();
+            additionalProperties.put(extensionProperty, extensions);
+          }
+
+          return extensions;
         } else {
             return additionalProperties;
         }
@@ -152,12 +160,20 @@ public class ExtensionUtil {
             additionalProperties = Maps.newHashMap();
         }
         if( !Strings.isNullOrEmpty(extensionProperty) ) {
-            extensions = (Map<String, Object>) additionalProperties.get(extensionProperty);
-            if(extensions == null) {
-                extensions = Maps.newHashMap();
-                additionalProperties.put(extensionProperty, extensions);
+          Object extensionProperties = additionalProperties.get(extensionProperty);
+
+          if( extensionProperties != null ) {
+            if( extensionProperties instanceof scala.collection.Map<?, ?> ) {
+              extensionProperties = scala.collection.JavaConverters.mapAsJavaMapConverter((scala.collection.Map<String, Object>) extensionProperties).asJava();
             }
-            return extensions;
+            extensions = (Map<String, Object>) extensionProperties;
+          }
+          else {
+            extensions = Maps.newHashMap();
+            additionalProperties.put(extensionProperty, extensions);
+          }
+
+          return extensions;
         } else {
             return additionalProperties;
         }
