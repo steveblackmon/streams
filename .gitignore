@@ -5,6 +5,7 @@ streams-master-pom/
 
 target/
 overlays/
+src/site/resources/
 dependency-reduced-pom.xml
 
 # IDE directories/files #
@@ -31,4 +32,3 @@ DISCLAIMER
 LICENSE
 NOTICE
 
-**/src/site/resources
