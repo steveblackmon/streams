@@ -22,7 +22,6 @@ package org.apache.streams.elasticsearch;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.Uninterruptibles;
 import org.apache.streams.config.StreamsConfigurator;
 import org.apache.streams.core.*;
 import org.apache.streams.jackson.StreamsJacksonMapper;
@@ -36,8 +35,8 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.common.joda.time.DateTime;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,6 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -234,7 +232,7 @@ public class ElasticsearchPersistWriter implements StreamsPersistWriter, DatumSt
                 // They are in 'very large bulk' mode and the process is finished. We now want to turn the
                 // refreshing back on.
                 UpdateSettingsRequest updateSettingsRequest = new UpdateSettingsRequest(indexName);
-                updateSettingsRequest.settings(ImmutableSettings.settingsBuilder().put("refresh_interval", "5s"));
+                updateSettingsRequest.settings(Settings.settingsBuilder().put("refresh_interval", "5s"));
 
                 // submit to ElasticSearch
                 this.manager.getClient()
@@ -426,7 +424,7 @@ public class ElasticsearchPersistWriter implements StreamsPersistWriter, DatumSt
             // They are in 'very large bulk' mode we want to turn off refreshing the index.
             // Create a request then add the setting to tell it to stop refreshing the interval
             UpdateSettingsRequest updateSettingsRequest = new UpdateSettingsRequest(indexName);
-            updateSettingsRequest.settings(ImmutableSettings.settingsBuilder().put("refresh_interval", -1));
+            updateSettingsRequest.settings(Settings.settingsBuilder().put("refresh_interval", -1));
 
             // submit to ElasticSearch
             this.manager.getClient()
