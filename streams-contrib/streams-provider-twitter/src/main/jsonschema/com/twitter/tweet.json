@@ -176,6 +176,28 @@
         },
         "user": {
             "$ref": "User.json"
+        },
+        "is_quote_status": {
+            "type": "boolean"
+        },
+        "quoted_status_id": {
+            "ignore_malformed": false,
+            "type": "integer"
+        },
+        "quoted_status": {
+            "type": "object",
+            "required" : false,
+            "description" : "Describes the tweet being quoted.",
+            "$ref" : "tweet.json"
+        },
+        "retweeted_status_id": {
+            "type": "integer"
+        },
+        "retweeted_status": {
+            "type": "object",
+            "required" : false,
+            "description" : "Describes the tweet being retweeted.",
+            "$ref" : "tweet.json"
         }
     }
 }
