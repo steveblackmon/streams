@@ -16,7 +16,7 @@
     <name>Apache Streams Project</name>
     <description>Apache Streams Project</description>
 
-    <url>http://streams.peoplepattern.com/${project.version}/${project.artifactId}</url>
+    <url>http://streams.peoplepattern.com/incubator-streams/${project.version}</url>
 
     <scm>
         <connection>scm:git:git@github.com:peoplepattern/incubator-streams.git</connection>
