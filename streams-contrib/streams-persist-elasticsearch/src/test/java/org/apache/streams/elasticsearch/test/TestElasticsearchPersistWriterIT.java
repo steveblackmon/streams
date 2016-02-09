@@ -18,9 +18,7 @@
 
 package org.apache.streams.elasticsearch.test;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
@@ -31,9 +29,8 @@ import org.apache.streams.elasticsearch.ElasticsearchWriterConfiguration;
 import org.apache.streams.jackson.StreamsJacksonMapper;
 import org.apache.streams.pojo.json.Activity;
 import org.apache.streams.pojo.json.Actor;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.test.ElasticsearchIntegrationTest;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -42,14 +39,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.List;
 
 /**
  * Created by sblackmon on 10/20/14.
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@ElasticsearchIntegrationTest.ClusterScope(scope= ElasticsearchIntegrationTest.Scope.TEST, numNodes=1)
-public class TestElasticsearchPersistWriterIT extends ElasticsearchIntegrationTest {
+@ESIntegTestCase.ClusterScope(numDataNodes=1)
+public class TestElasticsearchPersistWriterIT extends ESIntegTestCase {
 
     protected String TEST_INDEX = "TestElasticsearchPersistWriter".toLowerCase();
 
@@ -144,9 +141,7 @@ public class TestElasticsearchPersistWriterIT extends ElasticsearchIntegrationTe
         flushAndRefresh();
 
         long updated = client().prepareCount().setQuery(
-                QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-                        FilterBuilders.existsFilter("updated")
-                )
+                QueryBuilders.existsQuery("updated")
         ).execute().actionGet().getCount();
 
         LOGGER.info("updated: {}", updated);

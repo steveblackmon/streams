@@ -24,9 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
-import org.apache.lucene.queryparser.xml.builders.TermQueryBuilder;
 import org.apache.streams.core.StreamsDatum;
-import org.apache.streams.elasticsearch.ElasticsearchConfiguration;
 import org.apache.streams.elasticsearch.ElasticsearchPersistUpdater;
 import org.apache.streams.elasticsearch.ElasticsearchPersistWriter;
 import org.apache.streams.elasticsearch.ElasticsearchWriterConfiguration;
@@ -35,7 +33,7 @@ import org.apache.streams.pojo.json.Activity;
 import org.apache.streams.pojo.json.ActivityObject;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.test.ElasticsearchIntegrationTest;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -56,8 +54,8 @@ import java.util.Set;
  * Created by sblackmon on 10/20/14.
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@ElasticsearchIntegrationTest.ClusterScope(scope= ElasticsearchIntegrationTest.Scope.TEST, numNodes=1)
-public class TestElasticsearchPersistWriterParentChildIT extends ElasticsearchIntegrationTest {
+@ESIntegTestCase.ClusterScope(numDataNodes=1)
+public class TestElasticsearchPersistWriterParentChildIT extends ESIntegTestCase {
 
     protected String TEST_INDEX = "TestElasticsearchPersistWriter".toLowerCase();
 

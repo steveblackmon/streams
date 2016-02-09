@@ -18,21 +18,13 @@
 
 package org.apache.streams.elasticsearch.test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.streams.core.StreamsDatum;
-import org.apache.streams.elasticsearch.ElasticsearchConfiguration;
-import org.apache.streams.elasticsearch.ElasticsearchPersistWriter;
 import org.apache.streams.elasticsearch.ElasticsearchReaderConfiguration;
-import org.apache.streams.elasticsearch.ElasticsearchWriterConfiguration;
 import org.apache.streams.elasticsearch.processor.DatumFromMetadataProcessor;
-import org.apache.streams.elasticsearch.processor.DocumentToMetadataProcessor;
-import org.apache.streams.jackson.StreamsJacksonMapper;
-import org.apache.streams.pojo.json.Activity;
-import org.elasticsearch.test.ElasticsearchIntegrationTest;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,8 +35,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by sblackmon on 10/20/14.
  */
-@ElasticsearchIntegrationTest.ClusterScope(scope= ElasticsearchIntegrationTest.Scope.TEST, numNodes=1)
-public class TestDatumFromMetadataProcessor extends ElasticsearchIntegrationTest {
+@ESIntegTestCase.ClusterScope(numDataNodes=1)
+public class TestDatumFromMetadataProcessor extends ESIntegTestCase {
 
     private final String TEST_INDEX = "TestDatumFromMetadataProcessor".toLowerCase();
 

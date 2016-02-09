@@ -18,6 +18,7 @@
 
 package org.apache.streams.elasticsearch;
 
+import com.google.common.net.InetAddresses;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -29,12 +30,12 @@ import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -120,9 +121,8 @@ public class ElasticsearchClientManager {
     }
 
     public ClusterHealthResponse getStatus() throws ExecutionException, InterruptedException {
-        return new ClusterHealthRequestBuilder(this.getClient().admin().cluster())
-                .execute()
-                .get();
+        ClusterHealthRequestBuilder request = this.getClient().admin().cluster().prepareHealth();
+        return request.execute().get();
     }
 
     public String toString() {
@@ -150,7 +150,7 @@ public class ElasticsearchClientManager {
             // We are currently using lazy loading to start the elasticsearch cluster, however.
             LOGGER.info("Creating a new TransportClient: {}", this.elasticsearchConfiguration.getHosts());
 
-            Settings settings = ImmutableSettings.settingsBuilder()
+            Settings settings = Settings.settingsBuilder()
                     .put("cluster.name", this.elasticsearchConfiguration.getClusterName())
                     .put("client.transport.ping_timeout", "90s")
                     .put("client.transport.nodes_sampler_interval", "60s")
@@ -158,10 +158,14 @@ public class ElasticsearchClientManager {
 
 
             // Create the client
-            TransportClient client = new TransportClient(settings);
+            TransportClient client = TransportClient.builder().settings(settings).build();
             for (String h : this.getElasticsearchConfiguration().getHosts()) {
                 LOGGER.info("Adding Host: {}", h);
-                client.addTransportAddress(new InetSocketTransportAddress(h, this.getElasticsearchConfiguration().getPort().intValue()));
+                InetAddress address = InetAddresses.forString(h);
+                client.addTransportAddress(
+                        new InetSocketTransportAddress(
+                                address,
+                                this.getElasticsearchConfiguration().getPort().intValue()));
             }
 
             // Add the client and figure out the version.
@@ -178,7 +182,7 @@ public class ElasticsearchClientManager {
 
     private Version getVersion(Client client) {
         try {
-            ClusterStateRequestBuilder clusterStateRequestBuilder = new ClusterStateRequestBuilder(client.admin().cluster());
+            ClusterStateRequestBuilder clusterStateRequestBuilder = client.admin().cluster().prepareState();
             ClusterStateResponse clusterStateResponse = clusterStateRequestBuilder.execute().actionGet();
 
             return clusterStateResponse.getState().getNodes().getMasterNode().getVersion();
