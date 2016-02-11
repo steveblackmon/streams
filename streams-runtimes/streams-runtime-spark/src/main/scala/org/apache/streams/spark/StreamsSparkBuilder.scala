@@ -38,6 +38,26 @@ object StreamsSparkBuilder {
 
   private val LOGGER: Logger = LoggerFactory.getLogger("StreamsSparkHelper")
 
+  def validateJson(in: String) : Option[String] = {
+    val mapper = StreamsJacksonMapper.getInstance()
+    if( in.isInstanceOf[String] ) {
+      val obj = Try(mapper.readValue(in.asInstanceOf[String], classOf[ObjectNode]))
+      out match {
+        case Success(v : ObjectNode) =>
+          return Some(mapper.writeValueAsString(v))
+        case Failure(e : Throwable) =>
+          LOGGER.warn(in.toString)
+          return None
+        case _ =>
+          return None
+      }
+    }
+  }
+
+  def mapValidateJson(iter: Iterator[String]) : Iterator[String] = {
+    iter.flatMap(item => validateJson(item))
+  }
+
   def asActivity(in: Object) : Option[Activity] = {
     val mapper = StreamsJacksonMapper.getInstance()
     if( in.isInstanceOf[Activity] )
@@ -338,4 +358,3 @@ object StreamsSparkBuilder {
     SerializationUtil.cloneBySerialization(a)
 
 }
-
