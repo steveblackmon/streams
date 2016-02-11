@@ -124,6 +124,7 @@ public class WebHdfsPersistReader implements StreamsPersistReader, DatumStatusCo
                 public Void run() throws Exception {
                     Configuration conf = new Configuration();
                     conf.set(CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHENTICATION, "kerberos");
+                    conf.set("fs.webhdfs.impl", org.apache.hadoop.hdfs.web.WebHdfsFileSystem.class.getName());
                     conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
                     conf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
                     LOGGER.info("WebURI : {}", getURI().toString());
