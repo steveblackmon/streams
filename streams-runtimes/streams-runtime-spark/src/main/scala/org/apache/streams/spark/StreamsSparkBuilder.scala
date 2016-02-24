@@ -348,6 +348,31 @@ object StreamsSparkBuilder {
     return out
   }
 
+  def convertDocumentToJsonString(in: StreamsDatum, mapper: StreamsJacksonMapper = StreamsJacksonMapper.getInstance()) : Option[StreamsDatum] = {
+    val out : Try[StreamsDatum] = Try(
+      new StreamsDatum(
+        mapper.writeValueAsString(in.getDocument),
+        in.getId,
+        in.getTimestamp,
+        in.getSequenceid,
+        in.getMetadata
+      )
+    )
+    out match {
+      case Success(v : StreamsDatum) =>
+        if( v != null ) return Some(v) else return None
+      case Failure(e : Throwable) =>
+        LOGGER.warn(in.getId, e)
+        return None
+      case _ =>
+        return None
+    }
+  }
+
+  def mapConvertDocumentToJsonString(iter: Iterator[StreamsDatum], mapper: StreamsJacksonMapper = StreamsJacksonMapper.getInstance()) : Iterator[StreamsDatum] = {
+    iter.flatMap(item => convertDocumentToJsonString(item, mapper))
+  }
+
   def applyPersistWriter(in: StreamsDatum, writer: StreamsPersistWriter): Unit = {
     writer.write(in)
   }
