@@ -82,36 +82,54 @@ public class TwitterObjectMapperIT {
 
                     if( detected == Tweet.class ) {
 
-                        Tweet tweet = mapper.convertValue(event, Tweet.class);
+                        try {
+                            Tweet tweet = mapper.convertValue(event, Tweet.class);
 
-                        assertThat(tweet, is(not(nullValue())));
-                        assertThat(tweet.getCreatedAt(), is(not(nullValue())));
-                        assertThat(tweet.getText(), is(not(nullValue())));
-                        assertThat(tweet.getUser(), is(not(nullValue())));
+                            assertThat(tweet, is(not(nullValue())));
+                            assertThat(tweet.getCreatedAt(), is(not(nullValue())));
+                            assertThat(tweet.getText(), is(not(nullValue())));
+                            assertThat(tweet.getUser(), is(not(nullValue())));
 
-                        tweetlinks += Optional.fromNullable(tweet.getEntities().getUrls().size()).or(0);
+                            tweetlinks += Optional.fromNullable(tweet.getEntities().getUrls().size()).or(0);
+                        } catch( Exception e ) {
+                            LOGGER.debug("Caught Test Exception: ", e);
+                            LOGGER.debug("Offending document: ", mapper.writeValueAsString(event));
+                            Assert.fail();
+                        }
 
                     } else if( detected == Retweet.class ) {
 
-                        Retweet retweet = mapper.convertValue(event, Retweet.class);
+                        try {
+                            Retweet retweet = mapper.convertValue(event, Retweet.class);
 
-                        assertThat(retweet.getRetweetedStatus(), is(not(nullValue())));
-                        assertThat(retweet.getRetweetedStatus().getCreatedAt(), is(not(nullValue())));
-                        assertThat(retweet.getRetweetedStatus().getText(), is(not(nullValue())));
-                        assertThat(retweet.getRetweetedStatus().getUser(), is(not(nullValue())));
-                        assertThat(retweet.getRetweetedStatus().getUser().getId(), is(not(nullValue())));
-                        assertThat(retweet.getRetweetedStatus().getUser().getCreatedAt(), is(not(nullValue())));
+                            assertThat(retweet.getRetweetedStatus(), is(not(nullValue())));
+                            assertThat(retweet.getRetweetedStatus().getCreatedAt(), is(not(nullValue())));
+                            assertThat(retweet.getRetweetedStatus().getText(), is(not(nullValue())));
+                            assertThat(retweet.getRetweetedStatus().getUser(), is(not(nullValue())));
+                            assertThat(retweet.getRetweetedStatus().getUser().getId(), is(not(nullValue())));
+                            assertThat(retweet.getRetweetedStatus().getUser().getCreatedAt(), is(not(nullValue())));
 
-                        retweetlinks += Optional.fromNullable(retweet.getRetweetedStatus().getEntities().getUrls().size()).or(0);
+                            retweetlinks += Optional.fromNullable(retweet.getRetweetedStatus().getEntities().getUrls().size()).or(0);
+                        } catch( Exception e ) {
+                            LOGGER.debug("Caught Test Exception: ", e);
+                            LOGGER.debug("Offending document: ", mapper.writeValueAsString(event));
+                            Assert.fail();
+                        }
 
                     } else if( detected == Delete.class ) {
 
-                        Delete delete = mapper.convertValue(event, Delete.class);
+                        try {
+                            Delete delete = mapper.convertValue(event, Delete.class);
 
-                        assertThat(delete.getDelete(), is(not(nullValue())));
-                        assertThat(delete.getDelete().getStatus(), is(not(nullValue())));
-                        assertThat(delete.getDelete().getStatus().getId(), is(not(nullValue())));
-                        assertThat(delete.getDelete().getStatus().getUserId(), is(not(nullValue())));
+                            assertThat(delete.getDelete(), is(not(nullValue())));
+                            assertThat(delete.getDelete().getStatus(), is(not(nullValue())));
+                            assertThat(delete.getDelete().getStatus().getId(), is(not(nullValue())));
+                            assertThat(delete.getDelete().getStatus().getUserId(), is(not(nullValue())));
+                        } catch( Exception e ) {
+                            LOGGER.debug("Caught Test Exception: ", e);
+                            LOGGER.debug("Offending document: ", mapper.writeValueAsString(event));
+                            Assert.fail();
+                        }
 
                     } else {
                         Assert.fail();

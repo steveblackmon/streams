@@ -2,7 +2,7 @@
     "type": "object",
     "$schema": "http://json-schema.org/draft-03/schema",
     "$license": [
-      "http://www.apache.org/licenses/LICENSE-2.0"
+        "http://www.apache.org/licenses/LICENSE-2.0"
     ],
     "id": "#",
     "javaType" : "org.apache.streams.twitter.pojo.Tweet",
@@ -30,22 +30,34 @@
                 "type" : "number"
             }]
         },
-        "coordinates": {
+        "place": {
             "type": "object",
-            "javaType" : "org.apache.streams.twitter.pojo.Coordinates",
+            "javaType" : "org.apache.streams.twitter.pojo.Place",
             "javaInterfaces": ["java.io.Serializable"],
-            "items": {
-                "properties": {
-                    "type": {
-                        "type": "string"
-                    },
-                    "coordinates": {
-                        "type": "array",
-                        "items": [
-                            {
-                                "type": "integer"
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "bounding_box": {
+                    "type": "object",
+                    "javaType" : "org.apache.streams.twitter.pojo.BoundingBox",
+                    "javaInterfaces": ["java.io.Serializable"],
+                    "properties": {
+                        "type": {
+                            "type": "string"
+                        },
+                        "coordinates": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    }
+                                }
                             }
-                        ]
+                        }
                     }
                 }
             }
@@ -88,20 +100,20 @@
                 "hashtags": {
                     "type": "array",
                     "items": {
-                         "type": "object",
-                         "javaType": "org.apache.streams.twitter.pojo.Hashtag",
-                         "javaInterfaces": ["java.io.Serializable"],
-                         "properties": {
-                             "text": {
-                                 "type": "string"
-                             },
-                             "indices": {
-                                 "type": "array",
-                                 "items": [{
-                                         "type": "integer"
-                                 }]
-                             }
-                          }
+                        "type": "object",
+                        "javaType": "org.apache.streams.twitter.pojo.Hashtag",
+                        "javaInterfaces": ["java.io.Serializable"],
+                        "properties": {
+                            "text": {
+                                "type": "string"
+                            },
+                            "indices": {
+                                "type": "array",
+                                "items": [{
+                                    "type": "integer"
+                                }]
+                            }
+                        }
                     }
                 },
                 "urls": {
@@ -118,7 +130,7 @@
                                 "type": "array",
                                 "items": [
                                     {
-                                    "type" : "integer"
+                                        "type" : "integer"
                                     }
                                 ]
                             },

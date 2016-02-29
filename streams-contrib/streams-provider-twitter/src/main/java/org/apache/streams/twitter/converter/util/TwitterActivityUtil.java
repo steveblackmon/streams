@@ -33,14 +33,15 @@ import org.apache.streams.pojo.json.Actor;
 import org.apache.streams.pojo.json.Image;
 import org.apache.streams.pojo.json.Provider;
 import org.apache.streams.twitter.Url;
+import org.apache.streams.twitter.converter.StreamsTwitterMapper;
 import org.apache.streams.twitter.pojo.Delete;
 import org.apache.streams.twitter.pojo.Entities;
 import org.apache.streams.twitter.pojo.Hashtag;
+import org.apache.streams.twitter.pojo.Place;
 import org.apache.streams.twitter.pojo.Retweet;
 import org.apache.streams.twitter.pojo.Tweet;
 import org.apache.streams.twitter.pojo.User;
 import org.apache.streams.twitter.pojo.UserMentions;
-import org.apache.streams.twitter.converter.StreamsTwitterMapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,7 +71,7 @@ public class TwitterActivityUtil {
                         .orNull()));
 
         if(tweet instanceof Retweet) {
-            updateActivityContent(activity,  ((Retweet) tweet).getRetweetedStatus(), "share");
+            updateActivityContent(activity, tweet, "share");
         } else {
             updateActivityContent(activity, tweet, "post");
         }
@@ -269,8 +270,40 @@ public class TwitterActivityUtil {
                         .or(Optional.of(tweet.getId().toString()))
                         .orNull()
         ));
-        location.put("coordinates", tweet.getCoordinates());
+        location.put("coordinates", boundingBoxCenter(tweet.getPlace()));
         extensions.put("location", location);
+    }
+
+    /**
+     * Compute central coordinates from bounding box
+     * @param place the bounding box to use as the source
+     */
+    public static List<Double> boundingBoxCenter(Place place) {
+        if( place == null ) return new ArrayList<>();
+        if( place.getBoundingBox() == null ) return new ArrayList<>();
+        if( place.getBoundingBox().getCoordinates().size() != 4 ) return new ArrayList<>();
+        List<Double> lats = Lists.newArrayList();
+        List<Double> lons = Lists.newArrayList();
+        for( List<Double> point : place.getBoundingBox().getCoordinates().get(0)) {
+            lats.add(point.get(0));
+            lons.add(point.get(1));
+        }
+        List<Double> result = new ArrayList<Double>();
+        result.add(new Double(mean(lats)));
+        result.add(new Double(mean(lons)));
+        return result;
+    }
+
+    /**
+     * Compute mean of list of double values
+     * @param list the list of values
+     */
+    public static double mean( List<Double> list) {
+        double sum = 0;
+        for (int i = 0; i < list.size(); i++) {
+            sum += list.get(i);
+        }
+        return sum / list.size();
     }
 
     /**
