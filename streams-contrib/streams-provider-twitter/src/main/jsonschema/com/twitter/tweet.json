@@ -167,6 +167,10 @@
             "ignore_malformed": false,
             "type": "integer"
         },
+        "favorite_count": {
+            "ignore_malformed": false,
+            "type": "integer"
+        },
         "retweet_count": {
             "ignore_malformed": false,
             "type": "integer"
