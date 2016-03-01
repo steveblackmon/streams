@@ -281,7 +281,8 @@ public class TwitterActivityUtil {
     public static List<Double> boundingBoxCenter(Place place) {
         if( place == null ) return new ArrayList<>();
         if( place.getBoundingBox() == null ) return new ArrayList<>();
-        if( place.getBoundingBox().getCoordinates().size() != 4 ) return new ArrayList<>();
+        if( place.getBoundingBox().getCoordinates().size() != 1 ) return new ArrayList<>();
+        if( place.getBoundingBox().getCoordinates().get(0).size() != 4 ) return new ArrayList<>();
         List<Double> lats = Lists.newArrayList();
         List<Double> lons = Lists.newArrayList();
         for( List<Double> point : place.getBoundingBox().getCoordinates().get(0)) {
