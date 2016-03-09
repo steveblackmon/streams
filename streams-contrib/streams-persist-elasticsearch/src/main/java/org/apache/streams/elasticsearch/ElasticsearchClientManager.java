@@ -176,7 +176,7 @@ public class ElasticsearchClientManager {
                                 elasticsearchConfiguration.getPort().intValue()));
             }
             // Add the client and figure out the version.
-            ElasticsearchClient elasticsearchClient = new ElasticsearchClient(client, getVersion(client));
+            ElasticsearchClient elasticsearchClient = new ElasticsearchClient(transportClient, getVersion(transportClient));
 
             // Add it to our static map
             ALL_CLIENTS.put(clusterName, elasticsearchClient);
