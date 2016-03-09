@@ -158,16 +158,23 @@ public class ElasticsearchClientManager {
 
 
             // Create the client
-            TransportClient client = TransportClient.builder().settings(settings).build();
-            for (String h : this.getElasticsearchConfiguration().getHosts()) {
+            TransportClient transportClient = TransportClient.builder().settings(settings).build();
+            for (String h : elasticsearchConfiguration.getHosts()) {
                 LOGGER.info("Adding Host: {}", h);
-                InetAddress address = InetAddresses.forString(h);
-                client.addTransportAddress(
+                InetAddress address;
+
+                if( InetAddresses.isInetAddress(h)) {
+                    LOGGER.info("{} is an IP address", h);
+                    address = InetAddresses.forString(h);
+                } else {
+                    LOGGER.info("{} is a hostname", h);
+                    address = InetAddress.getByName(h);
+                }
+                transportClient.addTransportAddress(
                         new InetSocketTransportAddress(
                                 address,
-                                this.getElasticsearchConfiguration().getPort().intValue()));
+                                elasticsearchConfiguration.getPort().intValue()));
             }
-
             // Add the client and figure out the version.
             ElasticsearchClient elasticsearchClient = new ElasticsearchClient(client, getVersion(client));
 
