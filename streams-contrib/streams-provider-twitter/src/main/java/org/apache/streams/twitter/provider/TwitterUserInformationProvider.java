@@ -18,7 +18,9 @@
 
 package org.apache.streams.twitter.provider;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.apache.commons.lang.NotImplementedException;
@@ -27,8 +29,11 @@ import org.apache.streams.config.StreamsConfigurator;
 import org.apache.streams.core.StreamsDatum;
 import org.apache.streams.core.StreamsProvider;
 import org.apache.streams.core.StreamsResultSet;
+import org.apache.streams.jackson.StreamsJacksonMapper;
 import org.apache.streams.twitter.TwitterFollowingConfiguration;
 import org.apache.streams.twitter.TwitterUserInformationConfiguration;
+import org.apache.streams.twitter.converter.TwitterDateTimeFormat;
+import org.apache.streams.twitter.pojo.User;
 import org.apache.streams.util.ComponentUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -36,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.User;
 import twitter4j.conf.ConfigurationBuilder;
 import twitter4j.json.DataObjectFactory;
 
@@ -53,6 +57,8 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
 {
 
     public static final String STREAMS_ID = "TwitterUserInformationProvider";
+
+    private static ObjectMapper MAPPER = new StreamsJacksonMapper(Lists.newArrayList(TwitterDateTimeFormat.TWITTER_FORMAT));
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterUserInformationProvider.class);
 
@@ -116,9 +122,14 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
                 for(int i = 0; i < ids.length; i++)
                     toQuery[i] = ids[i];
 
-                for (User tStat : client.lookupUsers(toQuery)) {
-                    String json = DataObjectFactory.getRawJSON(tStat);
-                    ComponentUtils.offerUntilSuccess(new StreamsDatum(json), providerQueue);
+                for (twitter4j.User tUser : client.lookupUsers(toQuery)) {
+                    String json = DataObjectFactory.getRawJSON(tUser);
+                    try {
+                        User user = MAPPER.readValue(json, org.apache.streams.twitter.pojo.User.class);
+                        ComponentUtils.offerUntilSuccess(new StreamsDatum(user), providerQueue);
+                    } catch(Exception exception) {
+                        LOGGER.warn("Failed to read document as User ", tUser);
+                    }
                 }
                 keepTrying = 10;
             }
@@ -141,9 +152,14 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
         {
             try
             {
-                for (User tStat : client.lookupUsers(ids)) {
-                    String json = DataObjectFactory.getRawJSON(tStat);
-                    providerQueue.offer(new StreamsDatum(json));
+                for (twitter4j.User tUser : client.lookupUsers(ids)) {
+                    String json = DataObjectFactory.getRawJSON(tUser);
+                    try {
+                        User user = MAPPER.readValue(json, org.apache.streams.twitter.pojo.User.class);
+                        ComponentUtils.offerUntilSuccess(new StreamsDatum(user), providerQueue);
+                    } catch(Exception exception) {
+                        LOGGER.warn("Failed to read document as User ", tUser);
+                    }
                 }
                 keepTrying = 10;
             }
