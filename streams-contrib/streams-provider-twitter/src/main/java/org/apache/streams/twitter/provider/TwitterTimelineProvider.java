@@ -105,11 +105,10 @@ public class TwitterTimelineProvider implements StreamsProvider, Serializable {
 
     @Override
     public void startStream() {
-        LOGGER.debug("{} startStream", STREAMS_ID);
+
+        LOGGER.info("{} - startStream", ids);
 
         Preconditions.checkArgument(!ids.isEmpty());
-
-        LOGGER.info("readCurrent");
 
         submitTimelineThreads(ids.toArray(new Long[0]));
 
@@ -150,7 +149,7 @@ public class TwitterTimelineProvider implements StreamsProvider, Serializable {
 
     public StreamsResultSet readCurrent() {
 
-        LOGGER.info("Providing {} docs", providerQueue.size());
+        LOGGER.info("{} - readCurrent", ids);
 
         StreamsResultSet result;
 
@@ -159,16 +158,15 @@ public class TwitterTimelineProvider implements StreamsProvider, Serializable {
             result = new StreamsResultSet(providerQueue);
             result.setCounter(new DatumStatusCounter());
             providerQueue = constructQueue();
+            LOGGER.info("{} - providing {} docs", ids, result.size());
         } finally {
             lock.writeLock().unlock();
         }
 
         if( providerQueue.isEmpty() && executor.isTerminated()) {
-            LOGGER.info("Finished.  Cleaning up...");
+            LOGGER.info("{} - completed", ids);
 
             running.set(false);
-
-            LOGGER.info("Exiting");
         }
 
         return result;

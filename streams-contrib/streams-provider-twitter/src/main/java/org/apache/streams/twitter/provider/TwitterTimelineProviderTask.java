@@ -58,6 +58,8 @@ public class TwitterTimelineProviderTask implements Runnable {
         List<Status> statuses = null;
         int count = 0;
 
+        LOGGER.info(id + " Thread Starting");
+
         do
         {
             int keepTrying = 0;

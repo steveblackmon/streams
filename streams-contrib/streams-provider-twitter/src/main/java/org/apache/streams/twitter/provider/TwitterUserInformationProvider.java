@@ -21,11 +21,13 @@ package org.apache.streams.twitter.provider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.streams.config.ComponentConfigurator;
 import org.apache.streams.config.StreamsConfigurator;
+import org.apache.streams.core.DatumStatusCounter;
 import org.apache.streams.core.StreamsDatum;
 import org.apache.streams.core.StreamsProvider;
 import org.apache.streams.core.StreamsResultSet;
@@ -52,6 +54,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class TwitterUserInformationProvider implements StreamsProvider, Serializable
 {
@@ -62,7 +66,11 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterUserInformationProvider.class);
 
+    public static final int MAX_NUMBER_WAITING = 1000;
+
     private TwitterUserInformationConfiguration config;
+
+    protected final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     protected volatile Queue<StreamsDatum> providerQueue = new LinkedBlockingQueue<StreamsDatum>();
 
@@ -105,7 +113,20 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
 
     @Override
     public void startStream() {
+
+        Preconditions.checkArgument(idsBatches.hasNext() || screenNameBatches.hasNext());
+
+        LOGGER.info("{}{} - startStream", idsBatches, screenNameBatches);
+
+        while(idsBatches.hasNext())
+            loadBatch(idsBatches.next());
+
+        while(screenNameBatches.hasNext())
+            loadBatch(screenNameBatches.next());
+
         running.set(true);
+
+        executor.shutdown();
     }
 
     protected void loadBatch(Long[] ids) {
@@ -174,28 +195,32 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
 
     public StreamsResultSet readCurrent() {
 
-        Preconditions.checkArgument(idsBatches.hasNext() || screenNameBatches.hasNext());
+        LOGGER.info("{}{} - readCurrent", idsBatches, screenNameBatches);
 
-        LOGGER.info("readCurrent");
+        StreamsResultSet result;
 
-        while(idsBatches.hasNext())
-            loadBatch(idsBatches.next());
+        try {
+            lock.writeLock().lock();
+            result = new StreamsResultSet(providerQueue);
+            result.setCounter(new DatumStatusCounter());
+            providerQueue = constructQueue();
+            LOGGER.info("{}{} - providing {} docs", idsBatches, screenNameBatches, result.size());
+        } finally {
+            lock.writeLock().unlock();
+        }
 
-        while(screenNameBatches.hasNext())
-            loadBatch(screenNameBatches.next());
+        if( providerQueue.isEmpty() && executor.isTerminated()) {
+            LOGGER.info("{}{} - completed", idsBatches, screenNameBatches);
 
-
-        LOGGER.info("Finished.  Cleaning up...");
-
-        LOGGER.info("Providing {} docs", providerQueue.size());
-
-        StreamsResultSet result =  new StreamsResultSet(providerQueue);
-        running.set(false);
-
-        LOGGER.info("Exiting");
+            running.set(false);
+        }
 
         return result;
 
+    }
+
+    protected Queue<StreamsDatum> constructQueue() {
+        return Queues.synchronizedQueue(new LinkedBlockingQueue<StreamsDatum>(MAX_NUMBER_WAITING));
     }
 
     public StreamsResultSet readNew(BigInteger sequence) {
