@@ -53,11 +53,11 @@ public class WebHdfsPersistReaderTask implements Runnable {
 
         LOGGER.info("WebHdfsPersistReaderTask: files to process");
 
-        for( FileStatus fileStatus : reader.status ) {
+        for( FileStatus fileStatus : reader.files ) {
             LOGGER.info("    " + fileStatus.getPath().getName());
         }
 
-        for( FileStatus fileStatus : reader.status ) {
+        for( FileStatus fileStatus : reader.files ) {
             InputStream inputStream;
             InputStreamReader inputStreamReader;
             BufferedReader bufferedReader;

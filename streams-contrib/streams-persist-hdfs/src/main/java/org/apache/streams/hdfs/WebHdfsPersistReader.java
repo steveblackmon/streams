@@ -19,7 +19,9 @@
 package org.apache.streams.hdfs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import org.apache.hadoop.conf.Configuration;
@@ -43,7 +45,10 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
@@ -64,7 +69,7 @@ public class WebHdfsPersistReader implements StreamsPersistReader, DatumStatusCo
 
     protected FileSystem client;
     protected Path path;
-    protected FileStatus[] status;
+    protected List<FileStatus> files;
 
     protected volatile Queue<StreamsDatum> persistQueue;
 
@@ -170,27 +175,33 @@ public class WebHdfsPersistReader implements StreamsPersistReader, DatumStatusCo
         LOGGER.debug("Prepare");
         lineReaderUtil = LineReadWriteUtil.getInstance(hdfsConfiguration);
         connectToWebHDFS();
-        String pathString = hdfsConfiguration.getPath() + "/" + hdfsConfiguration.getReaderPath();
-        LOGGER.info("Path : {}", pathString);
-        path = new Path(pathString);
-        try {
-            if( client.isFile(path)) {
-                LOGGER.info("Found File");
-                FileStatus fileStatus = client.getFileStatus(path);
-                status = new FileStatus[1];
-                status[0] = fileStatus;
-            } else if( client.isDirectory(path)){
-                status = client.listStatus(path);
-                List<FileStatus> statusList = Lists.newArrayList(status);
-                Collections.sort(statusList);
-                status = statusList.toArray(new FileStatus[0]);
-                LOGGER.info("Found Directory : {} files", status.length);
-            } else {
-                LOGGER.error("Neither file nor directory, wtf");
+        List<String> readerPaths = Splitter.on(',').splitToList(hdfsConfiguration.getReaderPath());
+        Iterator<String> readerPathIterator = readerPaths.iterator();
+        List<FileStatus> statusList = Lists.newArrayList();
+        while( readerPathIterator.hasNext() ) {
+            String pathString = hdfsConfiguration.getPath() + "/" + readerPathIterator.next();
+            LOGGER.info("Path : {}", pathString);
+            path = new Path(pathString);
+            try {
+                if (client.isFile(path)) {
+                    FileStatus fileStatus = client.getFileStatus(path);
+                    statusList.add(fileStatus);
+                    LOGGER.info("Found File");
+                } else if (client.isDirectory(path)) {
+                    List<FileStatus> directoryList = Lists.newArrayList();
+                    FileStatus[] fileStatuses = client.listStatus(path);
+                    directoryList.addAll(Arrays.asList(fileStatuses));
+                    Collections.sort(directoryList);
+                    LOGGER.info("Found Directory : {} files", fileStatuses.length);
+                    statusList.addAll(directoryList);
+                } else {
+                    LOGGER.error("Neither file nor directory, wtf");
+                }
+            } catch (IOException e) {
+                LOGGER.error("IOException", e);
             }
-        } catch (IOException e) {
-            LOGGER.error("IOException", e);
         }
+        files = statusList;
         streamsConfiguration = StreamsConfigurator.detectConfiguration();
         persistQueue = Queues.synchronizedQueue(new LinkedBlockingQueue<StreamsDatum>(streamsConfiguration.getBatchSize().intValue()));
         //persistQueue = Queues.synchronizedQueue(new ConcurrentLinkedQueue());
@@ -218,6 +229,7 @@ public class WebHdfsPersistReader implements StreamsPersistReader, DatumStatusCo
     public void startStream() {
         LOGGER.debug("startStream");
         task = executor.submit(new WebHdfsPersistReaderTask(this));
+        executor.shutdown();
     }
 
     @Override
