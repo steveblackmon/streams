@@ -23,7 +23,7 @@
             "description" : "Name of streams pipeline",
             "default": "No-name Stream"
         },
-        "parallelism": {
+        "parallel": {
             "type" : "integer",
             "description" : "Default parallelism for processors",
             "default": 1
