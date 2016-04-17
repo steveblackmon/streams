@@ -18,9 +18,9 @@
 
 package org.apache.streams.elasticsearch.test;
 
-import com.carrotsearch.ant.tasks.junit4.dependencies.com.google.common.base.Strings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
