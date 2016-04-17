@@ -68,21 +68,21 @@ public class StreamsJacksonMapper extends ObjectMapper {
      */
     protected StreamsJacksonMapper() {
         super();
-        registerModule(new DefaultScalaModule());
+//        registerModule(new DefaultScalaModule());
         registerModule(new StreamsJacksonModule());
         configure();
     }
 
     public StreamsJacksonMapper(String format) {
         super();
-        registerModule(new DefaultScalaModule());
+//        registerModule(new DefaultScalaModule());
         registerModule(new StreamsJacksonModule(Lists.newArrayList(format)));
         configure();
     }
 
     public StreamsJacksonMapper(List<String> formats) {
         super();
-        registerModule(new DefaultScalaModule());
+//        registerModule(new DefaultScalaModule());
         registerModule(new StreamsJacksonModule(formats));
         configure();
     }
