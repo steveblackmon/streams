@@ -22,7 +22,7 @@
     <parent>
         <artifactId>streams-runtimes</artifactId>
         <groupId>org.apache.streams</groupId>
-        <version>0.3.7-PP</version>
+        <version>0.3.8-PP-SNAPSHOT</version>
     </parent>
     <artifactId>streams-runtime-storm</artifactId>
     <name>${project.artifactId}</name>

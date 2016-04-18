@@ -23,7 +23,7 @@
     <parent>
         <artifactId>streams-contrib</artifactId>
         <groupId>org.apache.streams</groupId>
-        <version>0.3.7-PP</version>
+        <version>0.3.8-PP-SNAPSHOT</version>
     </parent>
 
     <artifactId>streams-provider-facebook</artifactId>
