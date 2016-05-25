@@ -174,7 +174,7 @@ public class TwitterTimelineProvider implements StreamsProvider, Serializable {
     }
 
     protected Queue<StreamsDatum> constructQueue() {
-        return Queues.synchronizedQueue(new LinkedBlockingQueue<StreamsDatum>(MAX_NUMBER_WAITING));
+        return new LinkedBlockingQueue<StreamsDatum>();
     }
 
     public StreamsResultSet readNew(BigInteger sequence) {

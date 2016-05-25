@@ -149,4 +149,10 @@ public class TwitterFollowingProvider extends TwitterUserInformationProvider {
             lock.readLock().unlock();
         }
     }
+
+    @Override
+    public boolean isRunning() {
+        return running.get();
+    }
+
 }

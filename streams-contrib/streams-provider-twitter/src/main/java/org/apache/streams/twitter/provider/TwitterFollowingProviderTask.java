@@ -139,7 +139,7 @@ public class TwitterFollowingProviderTask implements Runnable {
                         Preconditions.checkNotNull(follow);
 
                         if( count < provider.getConfig().getMaxItems()) {
-                            provider.addDatum(new StreamsDatum(follow));
+                            ComponentUtils.offerUntilSuccess(new StreamsDatum(follow), provider.providerQueue);
                             count++;
                         }
 
@@ -191,12 +191,11 @@ public class TwitterFollowingProviderTask implements Runnable {
                                     .withFollowee(new User().withId(otherId))
                                     .withFollower(new User().withId(id));
                         }
-                        ComponentUtils.offerUntilSuccess(new StreamsDatum(follow), provider.providerQueue);
 
                         Preconditions.checkNotNull(follow);
 
                         if( count < provider.getConfig().getMaxItems()) {
-                            provider.addDatum(new StreamsDatum(follow));
+                            ComponentUtils.offerUntilSuccess(new StreamsDatum(follow), provider.providerQueue);
                             count++;
                         }
                     } catch (Exception e) {

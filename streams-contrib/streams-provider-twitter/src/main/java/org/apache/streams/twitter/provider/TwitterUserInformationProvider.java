@@ -57,6 +57,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+
 public class TwitterUserInformationProvider implements StreamsProvider, Serializable
 {
 
@@ -72,7 +74,7 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
 
     protected final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    protected volatile Queue<StreamsDatum> providerQueue = new LinkedBlockingQueue<StreamsDatum>();
+    protected volatile Queue<StreamsDatum> providerQueue;
 
     public TwitterUserInformationConfiguration getConfig()              { return config; }
 
@@ -220,7 +222,7 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
     }
 
     protected Queue<StreamsDatum> constructQueue() {
-        return Queues.synchronizedQueue(new LinkedBlockingQueue<StreamsDatum>(MAX_NUMBER_WAITING));
+        return new LinkedBlockingQueue<StreamsDatum>();
     }
 
     public StreamsResultSet readNew(BigInteger sequence) {
@@ -265,6 +267,13 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
 
         if( o instanceof TwitterFollowingConfiguration )
             config = (TwitterUserInformationConfiguration) o;
+
+        try {
+            lock.writeLock().lock();
+            providerQueue = constructQueue();
+        } finally {
+            lock.writeLock().unlock();
+        }
 
         Preconditions.checkNotNull(providerQueue);
         Preconditions.checkNotNull(config.getOauth().getConsumerKey());
@@ -319,6 +328,8 @@ public class TwitterUserInformationProvider implements StreamsProvider, Serializ
 
         if(ids.size() + screenNames.size() > 0)
             executor = MoreExecutors.listeningDecorator(newFixedThreadPoolWithQueueSize(5, (ids.size() + screenNames.size())));
+        else
+            executor = MoreExecutors.listeningDecorator(newSingleThreadExecutor());
 
         this.idsBatches = idsBatches.iterator();
         this.screenNameBatches = screenNameBatches.iterator();
