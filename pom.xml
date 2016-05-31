@@ -188,6 +188,7 @@
         <commons-codec.version>1.10</commons-codec.version>
         <commons-validator.version>1.4.0</commons-validator.version>
         <commons-lang3.version>3.1</commons-lang3.version>
+        <commons-collections4.version>4.1</commons-collections4.version>
         <typesafe.config.version>1.2.0</typesafe.config.version>
         <reflections.version>0.9.9</reflections.version>
         <orgjson.version>20140107</orgjson.version>
@@ -584,6 +585,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons-collections4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jsonschema2pojo</groupId>
