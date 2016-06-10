@@ -36,6 +36,8 @@ public interface QueryGraphHelper {
 
     public Pair<String, Map<String, Object>> getVertexRequest(Long vertexId);
 
+    public Pair<String, Map<String, Object>> getVerticesRequest(String labelId);
+
     public Pair<String, Map<String, Object>> createVertexRequest(ActivityObject activityObject);
 
     public Pair<String, Map<String, Object>> mergeVertexRequest(ActivityObject activityObject);

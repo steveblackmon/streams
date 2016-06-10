@@ -48,6 +48,7 @@ public class CypherQueryGraphHelper implements QueryGraphHelper {
 
     public final static String getVertexLongIdStatementTemplate = "MATCH (v) WHERE ID(v) = <id> RETURN v";
     public final static String getVertexStringIdStatementTemplate = "MATCH (v {id: '<id>'} ) RETURN v";
+    public final static String getVerticesLabelIdStatementTemplate = "MATCH (v:<type>) RETURN v";
 
     public final static String createVertexStatementTemplate = "MATCH (x {id: '<id>'}) "+
             "CREATE UNIQUE (v:<type> { props }) "+
@@ -87,6 +88,18 @@ public class CypherQueryGraphHelper implements QueryGraphHelper {
 
         return queryPlusParameters;
 
+    }
+
+    @Override
+    public Pair<String, Map<String, Object>> getVerticesRequest(String labelId) {
+        ST getVertex = new ST(getVerticesLabelIdStatementTemplate);
+        getVertex.add("type", labelId);
+
+        Pair<String, Map<String, Object>> queryPlusParameters = new Pair(getVertex.render(), null);
+
+        LOGGER.debug("getVertexRequest", queryPlusParameters.toString());
+
+        return queryPlusParameters;
     }
 
     public Pair<String, Map<String, Object>> createVertexRequest(ActivityObject activityObject) {
