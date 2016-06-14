@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.apache.streams</groupId>
         <artifactId>streams-master</artifactId>
-        <version>0.3.8-PP-SNAPSHOT</version>
+        <version>0.3.8-PP</version>
     </parent>
 
     <groupId>org.apache.streams</groupId>
