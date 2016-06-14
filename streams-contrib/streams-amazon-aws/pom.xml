@@ -21,7 +21,7 @@
     <parent>
         <artifactId>streams-contrib</artifactId>
         <groupId>org.apache.streams</groupId>
-        <version>0.3.8-PP</version>
+        <version>0.3.9-PP-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
