@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.streams.osgi.components</groupId>
     <artifactId>streams-osgi-components</artifactId>
-    <version>0.3.8-PP-SNAPSHOT</version>
+    <version>0.3.8-PP</version>
   </parent>
 
   <artifactId>activity-consumer</artifactId>

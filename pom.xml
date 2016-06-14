@@ -11,7 +11,7 @@
 
     <groupId>org.apache.streams</groupId>
     <artifactId>streams-project</artifactId>
-    <version>0.3.8-PP-SNAPSHOT</version>
+    <version>0.3.8-PP</version>
 
     <name>Apache Streams Project</name>
     <description>Apache Streams Project</description>
@@ -22,7 +22,7 @@
         <connection>scm:git:git@github.com:peoplepattern/incubator-streams.git</connection>
         <developerConnection>scm:git:git@github.com:peoplepattern/incubator-streams.git</developerConnection>
         <url>scm:git:git@github.com:peoplepattern/incubator-streams.git</url>
-        <tag>HEAD</tag>
+        <tag>streams-project-0.3.8-PP</tag>
     </scm>
 
     <distributionManagement>
