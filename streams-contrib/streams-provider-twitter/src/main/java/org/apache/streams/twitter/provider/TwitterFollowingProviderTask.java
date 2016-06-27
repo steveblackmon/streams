@@ -20,8 +20,11 @@ package org.apache.streams.twitter.provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
+import org.apache.streams.config.ComponentConfigurator;
+import org.apache.streams.config.StreamsConfigurator;
 import org.apache.streams.core.StreamsDatum;
 import org.apache.streams.jackson.StreamsJacksonMapper;
+import org.apache.streams.twitter.TwitterConfiguration;
 import org.apache.streams.twitter.pojo.Follow;
 import org.apache.streams.twitter.pojo.User;
 import org.apache.streams.util.ComponentUtils;
@@ -49,6 +52,11 @@ public class TwitterFollowingProviderTask implements Runnable {
     protected String endpoint;
 
     private int max_per_page = 200;
+    private long retryMax =
+        new ComponentConfigurator<TwitterConfiguration>(TwitterConfiguration.class).detectConfiguration(
+                StreamsConfigurator.getConfig().getConfig("twitter")
+        ).getRetryMax();
+
     int count = 0;
 
     public TwitterFollowingProviderTask(TwitterFollowingProvider provider, Twitter twitter, Long id, String endpoint, Boolean idsOnly) {
@@ -157,7 +165,7 @@ public class TwitterFollowingProviderTask implements Runnable {
             catch(Exception e) {
                 keepTrying += TwitterErrorHandler.handleTwitterError(client, e);
             }
-        } while (curser != 0 && keepTrying < 10 && count < provider.getConfig().getMaxItems());
+        } while (curser != 0 && keepTrying < retryMax && count < provider.getConfig().getMaxItems());
     }
 
     private void collectIds(Long id) {
@@ -212,7 +220,7 @@ public class TwitterFollowingProviderTask implements Runnable {
             catch(Exception e) {
                 keepTrying += TwitterErrorHandler.handleTwitterError(client, e);
             }
-        } while (curser != 0 && keepTrying < 10 && count < provider.getConfig().getMaxItems());
+        } while (curser != 0 && keepTrying < retryMax && count < provider.getConfig().getMaxItems());
     }
 
     protected void getFollowing(String screenName) {
