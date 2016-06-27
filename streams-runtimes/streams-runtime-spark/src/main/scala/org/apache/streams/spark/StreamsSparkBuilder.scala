@@ -18,15 +18,15 @@
 
 package org.apache.streams.spark
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.typesafe.config.Config
 import org.apache.streams.converter.{LineReadWriteConfiguration, LineReadWriteUtil}
-import org.apache.streams.core.{StreamsPersistWriter, StreamsDatum, StreamsProcessor}
+import org.apache.streams.core.{StreamsDatum, StreamsPersistWriter, StreamsProcessor}
 import org.apache.streams.jackson.StreamsJacksonMapper
 import org.apache.streams.local.builders.LocalStreamBuilder
-import org.apache.streams.pojo.json.{Actor, ActivityObject, Activity}
+import org.apache.streams.pojo.json.{Activity, ActivityObject, Actor}
 import org.apache.streams.util.SerializationUtil
 import org.joda.time.DateTime
 import org.slf4j.{Logger, LoggerFactory}
