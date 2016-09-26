@@ -53,12 +53,14 @@ public class StreamsDateTimeDeserializer extends StdDeserializer<DateTime> imple
 
     protected StreamsDateTimeDeserializer(Class<DateTime> dateTimeClass, List<String> formats) {
         super(dateTimeClass);
-        for( String format : formats )
-            try {
-                formatters.add(DateTimeFormat.forPattern(format));
-            } catch( Exception e ) {
-                LOGGER.warn("Exception parsing format " + format);
-            }
+        if( formats != null && formats.size() > 0 ) {
+            for (String format : formats)
+                try {
+                    formatters.add(DateTimeFormat.forPattern(format));
+                } catch (Exception e) {
+                    LOGGER.warn("Exception parsing format " + format);
+                }
+        }
     }
 
     /**
