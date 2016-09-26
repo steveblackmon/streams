@@ -52,10 +52,6 @@ public class TwitterFollowingProviderTask implements Runnable {
     protected String endpoint;
 
     private int max_per_page = 200;
-    private long retryMax =
-        new ComponentConfigurator<TwitterConfiguration>(TwitterConfiguration.class).detectConfiguration(
-                StreamsConfigurator.getConfig().getConfig("twitter")
-        ).getRetryMax();
 
     int count = 0;
 
@@ -165,7 +161,7 @@ public class TwitterFollowingProviderTask implements Runnable {
             catch(Exception e) {
                 keepTrying += TwitterErrorHandler.handleTwitterError(client, e);
             }
-        } while (curser != 0 && keepTrying < retryMax && count < provider.getConfig().getMaxItems());
+        } while (curser != 0 && keepTrying < provider.getConfig().getRetryMax() && count < provider.getConfig().getMaxItems());
     }
 
     private void collectIds(Long id) {
@@ -220,7 +216,7 @@ public class TwitterFollowingProviderTask implements Runnable {
             catch(Exception e) {
                 keepTrying += TwitterErrorHandler.handleTwitterError(client, e);
             }
-        } while (curser != 0 && keepTrying < retryMax && count < provider.getConfig().getMaxItems());
+        } while (curser != 0 && keepTrying < provider.getConfig().getRetryMax() && count < provider.getConfig().getMaxItems());
     }
 
     protected void getFollowing(String screenName) {
