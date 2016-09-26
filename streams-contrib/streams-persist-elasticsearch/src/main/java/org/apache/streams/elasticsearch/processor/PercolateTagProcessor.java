@@ -194,29 +194,30 @@ public class PercolateTagProcessor implements StreamsProcessor {
     @Override
     public void prepare(Object o) {
 
-        Preconditions.checkNotNull(config);
-        Preconditions.checkNotNull(config.getTags());
-        Preconditions.checkArgument(config.getTags().getAdditionalProperties().size() > 0);
-
-        // consider using mapping to figure out what fields are included in _all
-        //manager.getClient().admin().indices().prepareGetMappings(config.getIndex()).get().getMappings().get(config.getType()).;
-
         mapper = StreamsJacksonMapper.getInstance();
+
+        Preconditions.checkNotNull(config);
+
         manager = new ElasticsearchClientManager(config);
-        bulkBuilder = manager.getClient().prepareBulk();
-        createIndexIfMissing(config.getIndex());
-        if( config.getReplaceTags() == true ) {
-            deleteOldQueries(config.getIndex());
+
+        if( config.getTags() != null && config.getTags().getAdditionalProperties().size() > 0) {
+            // initial write tags to index
+            createIndexIfMissing(config.getIndex());
+            if( config.getReplaceTags() == true ) {
+                deleteOldQueries(config.getIndex());
+            }
+            for (String tag : config.getTags().getAdditionalProperties().keySet()) {
+                String query = (String) config.getTags().getAdditionalProperties().get(tag);
+                PercolateQueryBuilder queryBuilder = new PercolateQueryBuilder(tag, query, this.usePercolateField);
+                addPercolateRule(queryBuilder, config.getIndex());
+            }
+            bulkBuilder = manager.getClient().prepareBulk();
+
+            if (writePercolateRules() == true)
+                LOGGER.info("wrote " + bulkBuilder.numberOfActions() + " tags to " + config.getIndex() + " _percolator");
+            else
+                LOGGER.error("FAILED writing " + bulkBuilder.numberOfActions() + " tags to " + config.getIndex() + " _percolator");
         }
-        for (String tag : config.getTags().getAdditionalProperties().keySet()) {
-            String query = (String) config.getTags().getAdditionalProperties().get(tag);
-            PercolateQueryBuilder queryBuilder = new PercolateQueryBuilder(tag, query, this.usePercolateField);
-            addPercolateRule(queryBuilder, config.getIndex());
-        }
-        if (writePercolateRules() == true)
-            LOGGER.info("wrote " + bulkBuilder.numberOfActions() + " tags to " + config.getIndex() + " _percolator");
-        else
-            LOGGER.error("FAILED writing " + bulkBuilder.numberOfActions() + " tags to " + config.getIndex() + " _percolator");
 
     }
 
