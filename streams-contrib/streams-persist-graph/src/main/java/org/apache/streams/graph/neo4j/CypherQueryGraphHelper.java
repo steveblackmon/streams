@@ -129,7 +129,7 @@ public class CypherQueryGraphHelper implements QueryGraphHelper {
 
         Preconditions.checkNotNull(activityObject.getObjectType());
 
-        Pair queryPlusParameters = new Pair(null, Maps.newHashMap());
+        Pair queryPlusParameters = new Pair(null, null);
 
         List<String> labels = getLabels(activityObject);
 
@@ -141,22 +141,27 @@ public class CypherQueryGraphHelper implements QueryGraphHelper {
         String query = mergeVertex.render();
 
         ObjectNode object = MAPPER.convertValue(activityObject, ObjectNode.class);
+        Map<String, Object> params = Maps.newHashMap();
         Map<String, Object> props = PropertyUtil.flattenToMap(object, '.');
+        params.put("props", props);
 
-        LOGGER.debug("mergeVertexRequest: ({},{})", query, props);
+        LOGGER.debug("mergeVertexRequest: ({},{})", query, params);
 
         queryPlusParameters = queryPlusParameters.setAt0(query);
-        queryPlusParameters = queryPlusParameters.setAt1(props);
+        queryPlusParameters = queryPlusParameters.setAt1(params);
 
         return queryPlusParameters;
     }
 
     public Pair<String, Map<String, Object>> createEdgeRequest(Activity activity) {
 
-        Pair queryPlusParameters = new Pair(null, Maps.newHashMap());
+        Pair queryPlusParameters = new Pair(null, null);
 
         ObjectNode object = MAPPER.convertValue(activity, ObjectNode.class);
+
+        Map<String, Object> params = Maps.newHashMap();
         Map<String, Object> props = PropertyUtil.flattenToMap(object, '.');
+        params.put("props", props);
 
         ST mergeEdge = new ST(createEdgeStatementTemplate);
         mergeEdge.add("s_id", activity.getActor().getId());
@@ -175,9 +180,9 @@ public class CypherQueryGraphHelper implements QueryGraphHelper {
 
         String statement = mergeEdge.render();
         queryPlusParameters = queryPlusParameters.setAt0(statement);
-        queryPlusParameters = queryPlusParameters.setAt1(props);
+        queryPlusParameters = queryPlusParameters.setAt1(params);
 
-        LOGGER.debug("createEdgeRequest: ({},{})", statement, props);
+        LOGGER.debug("createEdgeRequest: ({},{})", statement, params);
 
         return queryPlusParameters;
     }
