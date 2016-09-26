@@ -58,6 +58,7 @@ public class TwitterFollowingProvider extends TwitterUserInformationProvider {
     }
 
     public TwitterFollowingProvider(TwitterFollowingConfiguration config) {
+        super(config);
         this.config = config;
     }
 
